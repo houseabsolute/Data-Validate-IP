@@ -1,0 +1,53 @@
+Revision history for Perl extension Data::Validate::IP.
+
+0.14  Thu Jan  06 2011
+	- Cleaned up test suite (no code changes)
+
+0.13  Thu Jan  06 2011
+	- Fixed unshorted ipv6 check when ipv4 address is trailing. (Bug#64532)
+		Thanks to Milan Matlak <milan.matlak@sde.cz> for patch
+
+0.12  Wed Dec  29 2010
+	- Fixed parsing of trailing :: (such as 2001::), as that is valid
+		This address bug#58991 - Thanks to Alan.Chester@tekelec.com for identifying the problem
+	- Also fixed incorrectly treating 2001::1: as a valid IPv6 address when it isn't
+	
+0.11  Mon Mar  01 2010
+	- Added support for is_innet_ipv4 - simple check to see if IP is in network
+		Thanks to "Bartłomiej Syryjczyk" <bartlomiej@syryjczyk.name> for suggesting the function
+	  
+
+0.10  Thu Jun  04 2009
+	- Added initial support for is_ipv6.  ipv6 is new territory for me, so please send in your 
+	  bug reports to me so that I can make sure I get it done correctly.
+
+0.09  Fri Jan  30 2009
+	- Removed AUTOLOAD
+	
+0.08  Wed Dec   6 2007
+        - Fixed is_ipv4 to treat leading 0's in an ip as invalid, i.e.: 017.1.1.1 is invalid
+		Thanks to Joshua D. Abraham <jabra@spl0it.org> for submitting the patch
+
+0.07  Wed May  17 2007
+        - Added POD testing, and minor cleanup related to that
+
+0.06  Wed May  16 2007
+        - Updated contact information to be neil@neely.cx, this is a purely cosmetic change
+
+0.05  Tue Mar  6 12:42:11 2007
+	-  added is_multicast_ipv4 and is_linklocal_ipv4
+		Thanks to Matt Dainty <matt@bodgit-n-scarper.com> for doing all the work
+
+0.04  Thu Apr 28 09:07:29 2005
+	-  Removed perl version dependency in Makefile.PL
+
+0.03  Fri Mar  4 12:58:10 2005
+	-  Minor fix to pod markup
+
+0.02  Fri Mar  4 09:43:14 2005
+	-  added is_private_ipv4 is_loopback_ipv4 is_testnet_ipv4 is_public_ipv4
+
+0.01  Thu Mar  3 15:15:46 2005
+	- original version; created by h2xs 1.23 with options
+		-AXn Data::Validate::IP
+

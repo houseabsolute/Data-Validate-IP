@@ -1,0 +1,9 @@
+Changes
+Makefile.PL
+MANIFEST
+README
+t/Data-Validate-IP.t
+t/Pod.t
+t/Pod-Coverage.t
+lib/Data/Validate/IP.pm
+META.yml                                 Module meta-data (added by MakeMaker)
