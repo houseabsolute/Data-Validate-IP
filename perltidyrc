@@ -7,7 +7,6 @@
 -boc
 -nolq
 -pt=2
---freeze-newlines
 -it=2
 --blank-lines-before-packages=0
 --no-outdent-long-comments 
