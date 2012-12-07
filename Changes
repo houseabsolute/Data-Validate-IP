@@ -1,5 +1,8 @@
 Revision history for Perl extension Data::Validate::IP.
 
+    - Fixed bug where '::' was not recognized as a valid IPv6 address. (Bug#81700)
+    - All the ipv6 related subroutines now untaint their return value.
+
 0.14  Thu Jan  06 2011
     - Cleaned up test suite (no code changes)
 
