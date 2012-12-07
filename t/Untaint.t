@@ -44,6 +44,7 @@ _test_bad_data('is_multicast_ipv4', '10.0.0.1');
 _test_good_data('is_linklocal_ipv4', '169.254.0.1');
 _test_bad_data('is_linklocal_ipv4', '10.0.0.1');
 
+_test_good_data('is_ipv6', '::');
 _test_good_data('is_ipv6', 'fff0:1234::');
 _test_bad_data('is_ipv6', 'fffff::');
 

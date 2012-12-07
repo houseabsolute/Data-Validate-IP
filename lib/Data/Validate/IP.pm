@@ -226,6 +226,9 @@ sub is_ipv6 {
 
     return unless defined($value);
 
+    # This is valid but the algorithm below won't do the right thing with it.
+    return '::' if $value eq '::';
+
     # if there is a :: then there must be only one ::
     # and the length can be variable
     # without it, the length must be 8 groups
