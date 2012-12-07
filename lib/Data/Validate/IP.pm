@@ -274,6 +274,10 @@ sub is_ipv6 {
 
     my $return = join(':', @chunks);
 
+    #Explicitly untaint the data
+    $return =~ /(.+)/;
+    $return = $1;
+
     #Need to handle the exception of trailing :: being valid
     return $return . '::' if ($value =~ /::$/);
     return $return;
