@@ -237,7 +237,7 @@ sub is_ipv6 {
     #if only one chunk and it matches it isn't ipv6 - it is a ipv4 address only
     my $ipv4;
     my $expected_chunks = 8;
-    if (@chunks > 1 && is_ipv4($chunks[$#chunks])) {
+    if (@chunks > 1 && is_ipv4($chunks[-1])) {
         $ipv4 = pop(@chunks);
         $expected_chunks--;
     }
