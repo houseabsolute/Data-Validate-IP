@@ -1,3 +1,5 @@
+#!perl -T
+
 use strict;
 use warnings;
 
@@ -7,6 +9,9 @@ use Test::Requires {
 };
 
 use Data::Validate::IP;
+
+taint_checking_ok('taint is enabled')
+    or BAIL_OUT('Cannot continue unless taint is enabled');
 
 _test_good_data('is_ipv4', '1.2.3.4');
 _test_bad_data('is_ipv4', '1.2.3.999');
@@ -51,6 +56,7 @@ sub _test_good_data {
     my $expect = shift || $good;
 
     my @args = _args($good);
+    tainted_ok_deeply(\@args, 'all arguments are tainted');
 
     my $return = Data::Validate::IP->new()->$meth(@args);
     is($return, $expect, "$meth(@args) returns $expect with tainted value");
@@ -65,6 +71,8 @@ sub _test_bad_data {
     my $bad  = shift;
 
     my @args   = _args($bad);
+    tainted_ok_deeply(\@args, 'all arguments are tainted');
+
     my $return = Data::Validate::IP->new()->$meth(@args);
     is($return, undef, "$meth(@args) returns undef with tainted value");
 }
