@@ -4,14 +4,13 @@ use strict;
 use warnings;
 use Net::Netmask;
 
-
 require Exporter;
 
-use constant LOOPBACK   => [qw(127.0.0.0/8)];
-use constant TESTNET    => [qw(192.0.2.0/24)];
-use constant PRIVATE    => [qw(10.0.0.0/8 172.16.0.0/12 192.168.0.0/16)];
-use constant MULTICAST  => [qw(224.0.0.0/4)];
-use constant LINKLOCAL  => [qw(169.254.0.0/16)];
+use constant LOOPBACK  => [qw(127.0.0.0/8)];
+use constant TESTNET   => [qw(192.0.2.0/24)];
+use constant PRIVATE   => [qw(10.0.0.0/8 172.16.0.0/12 192.168.0.0/16)];
+use constant MULTICAST => [qw(224.0.0.0/4)];
+use constant LINKLOCAL => [qw(169.254.0.0/16)];
 
 our @ISA = qw(Exporter);
 
@@ -22,23 +21,23 @@ our @ISA = qw(Exporter);
 # This allows declaration	use Data::Validate::IP ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(
-	
-) ] );
+our %EXPORT_TAGS = ('all' => [ qw(
 
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
+            ) ]);
+
+our @EXPORT_OK = (@{ $EXPORT_TAGS{'all'} });
 
 our @EXPORT = qw(
-                is_ipv4
-                is_ipv6
-		is_innet_ipv4
-                is_private_ipv4
-                is_loopback_ipv4
-                is_testnet_ipv4
-                is_public_ipv4
-                is_multicast_ipv4
-                is_linklocal_ipv4
-                is_linklocal_ipv6
+    is_ipv4
+    is_ipv6
+    is_innet_ipv4
+    is_private_ipv4
+    is_loopback_ipv4
+    is_testnet_ipv4
+    is_public_ipv4
+    is_multicast_ipv4
+    is_linklocal_ipv4
+    is_linklocal_ipv6
 );
 
 our $VERSION = '0.14';
@@ -46,10 +45,9 @@ our $VERSION = '0.14';
 #Global, we store this only once
 my %MASK;
 
-
 # Preloaded methods go here.
 
-# 
+#
 
 =head1 NAME
 
@@ -119,15 +117,11 @@ Returns a Data::Validate::IP object
 
 =cut
 
+sub new {
+    my $class = shift;
 
-
-
-sub new{
-        my $class = shift;
-        
-        return bless {}, $class;
+    return bless {}, $class;
 }
-
 
 # -------------------------------------------------------------------------------
 
@@ -171,21 +165,21 @@ actually exists. It only looks to see that the format is appropriate.
 =cut
 
 sub is_ipv4 {
-        my $self = shift if ref($_[0]); 
-        my $value = shift;
-        
-        return unless defined($value);
-        
-        my(@octets) = $value =~ /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
-	return unless (@octets == 4);
-	foreach (@octets) {
-		#return unless ($_ >= 0 && $_ <= 255);
-		return unless ($_ >= 0 && $_ <= 255 && $_ !~ /^0\d{1,2}$/);
-	}
-        
-        return join('.', @octets);
-}
+    my $self = shift if ref($_[0]);
+    my $value = shift;
 
+    return unless defined($value);
+
+    my (@octets) = $value =~ /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+    return unless (@octets == 4);
+    foreach (@octets) {
+
+        #return unless ($_ >= 0 && $_ <= 255);
+        return unless ($_ >= 0 && $_ <= 255 && $_ !~ /^0\d{1,2}$/);
+    }
+
+    return join('.', @octets);
+}
 
 # -------------------------------------------------------------------------------
 #
@@ -226,58 +220,64 @@ actually exists. It only looks to see that the format is appropriate.
 
 =cut
 
-
 sub is_ipv6 {
-        my $self = shift if ref($_[0]); 
-        my $value = shift;
+    my $self = shift if ref($_[0]);
+    my $value = shift;
 
-        return unless defined($value);
+    return unless defined($value);
 
-	# if there is a :: then there must be only one ::
-	# and the length can be variable
-	# without it, the length must be 8 groups
+    # if there is a :: then there must be only one ::
+    # and the length can be variable
+    # without it, the length must be 8 groups
 
-	my (@chunks) = split(':', $value);
-	#need to see if last chunk is an ipv4 address, if it is we pop it off and 
-	#exempt it from the normal ipv6 checking and stick it back on at the end.
-	#if only one chunk and it matches it isn't ipv6 - it is a ipv4 address only
-	my $ipv4;
-	my $expected_chunks = 8;
-	if (@chunks > 1 && is_ipv4($chunks[$#chunks])) {
-		$ipv4 = pop(@chunks);
-		$expected_chunks--;
-	}
-	my $empty = 0;
-	#Workaround to handle trailing :: being valid
+    my (@chunks) = split(':', $value);
 
-	if ($value =~ /[0123456789abcdef]{1,4}::$/) {
-		$empty++;
-	} elsif ($value =~ /:$/) {
-		#single trailing ':' is invalid
-		return;
-	}
-	foreach (@chunks) {
-		return unless (/^[0123456789abcdef]{0,4}$/i);
-		$empty++ if /^$/;
-	}
-	#More than one :: block is bad, but if it starts with :: it will look like two, so we need an exception.
-	if ($empty == 2 && $value =~ /^::/) {
-		#This is ok
-	} elsif ($empty > 1) {
-		return;
-	}
+    #need to see if last chunk is an ipv4 address, if it is we pop it off and
+    #exempt it from the normal ipv6 checking and stick it back on at the end.
+    #if only one chunk and it matches it isn't ipv6 - it is a ipv4 address only
+    my $ipv4;
+    my $expected_chunks = 8;
+    if (@chunks > 1 && is_ipv4($chunks[$#chunks])) {
+        $ipv4 = pop(@chunks);
+        $expected_chunks--;
+    }
+    my $empty = 0;
 
-	if (defined $ipv4) {
-		push(@chunks, $ipv4);
-	}
-	#Need 8 chunks, or we need an empty section that could be filled to represent the missing '0' sections
-	return unless (@chunks == $expected_chunks || @chunks < $expected_chunks && $empty);
+    #Workaround to handle trailing :: being valid
 
-       	my $return = join(':', @chunks);
-	#Need to handle the exception of trailing :: being valid
-	return $return . '::' if ($value =~ /::$/);
-	return $return;
-	
+    if ($value =~ /[0123456789abcdef]{1,4}::$/) {
+        $empty++;
+    } elsif ($value =~ /:$/) {
+
+        #single trailing ':' is invalid
+        return;
+    }
+    foreach (@chunks) {
+        return unless (/^[0123456789abcdef]{0,4}$/i);
+        $empty++ if /^$/;
+    }
+
+    #More than one :: block is bad, but if it starts with :: it will look like two, so we need an exception.
+    if ($empty == 2 && $value =~ /^::/) {
+
+        #This is ok
+    } elsif ($empty > 1) {
+        return;
+    }
+
+    if (defined $ipv4) {
+        push(@chunks, $ipv4);
+    }
+
+    #Need 8 chunks, or we need an empty section that could be filled to represent the missing '0' sections
+    return unless (@chunks == $expected_chunks || @chunks < $expected_chunks && $empty);
+
+    my $return = join(':', @chunks);
+
+    #Need to handle the exception of trailing :: being valid
+    return $return . '::' if ($value =~ /::$/);
+    return $return;
+
 }
 
 =pod
@@ -344,19 +344,18 @@ actually exists.
 
 =cut
 
-
 sub is_innet_ipv4 {
-        my $self = shift if ref($_[0]); 
-        my $value = shift;
-        my $network = shift;
-        
-        return unless defined($value);
+    my $self    = shift if ref($_[0]);
+    my $value   = shift;
+    my $network = shift;
 
-	my $ip = is_ipv4($value);
-	return unless defined $ip;
+    return unless defined($value);
 
-	return unless Net::Netmask::findNetblock($ip,_mask($network));
-	return $ip;
+    my $ip = is_ipv4($value);
+    return unless defined $ip;
+
+    return unless Net::Netmask::findNetblock($ip, _mask($network));
+    return $ip;
 }
 
 =pod
@@ -412,18 +411,17 @@ actually exists.
 
 =cut
 
-
 sub is_private_ipv4 {
-        my $self = shift if ref($_[0]); 
-        my $value = shift;
-        
-        return unless defined($value);
+    my $self = shift if ref($_[0]);
+    my $value = shift;
 
-	my $ip = is_ipv4($value);
-	return unless defined $ip;
+    return unless defined($value);
 
-	return unless Net::Netmask::findNetblock($ip,_mask('private'));
-	return $ip;
+    my $ip = is_ipv4($value);
+    return unless defined $ip;
+
+    return unless Net::Netmask::findNetblock($ip, _mask('private'));
+    return $ip;
 }
 
 =pod
@@ -473,18 +471,17 @@ actually exists.
 
 =cut
 
-
 sub is_loopback_ipv4 {
-        my $self = shift if ref($_[0]); 
-        my $value = shift;
-        
-        return unless defined($value);
+    my $self = shift if ref($_[0]);
+    my $value = shift;
 
-	my $ip = is_ipv4($value);
-	return unless defined $ip;
+    return unless defined($value);
 
-	return unless Net::Netmask::findNetblock($ip,_mask('loopback'));
-	return $ip;
+    my $ip = is_ipv4($value);
+    return unless defined $ip;
+
+    return unless Net::Netmask::findNetblock($ip, _mask('loopback'));
+    return $ip;
 }
 
 =pod
@@ -533,18 +530,17 @@ actually exists.
 
 =cut
 
-
 sub is_testnet_ipv4 {
-        my $self = shift if ref($_[0]); 
-        my $value = shift;
-        
-        return unless defined($value);
+    my $self = shift if ref($_[0]);
+    my $value = shift;
 
-	my $ip = is_ipv4($value);
-	return unless defined $ip;
+    return unless defined($value);
 
-	return unless Net::Netmask::findNetblock($ip,_mask('testnet'));
-	return $ip;
+    my $ip = is_ipv4($value);
+    return unless defined $ip;
+
+    return unless Net::Netmask::findNetblock($ip, _mask('testnet'));
+    return $ip;
 }
 
 =pod
@@ -592,20 +588,18 @@ actually exists.
 
 =cut
 
-
 sub is_multicast_ipv4 {
-       my $self = shift if ref($_[0]); 
-       my $value = shift;
+    my $self = shift if ref($_[0]);
+    my $value = shift;
 
-       return unless defined($value);
+    return unless defined($value);
 
-       my $ip = is_ipv4($value);
-       return unless defined $ip;
+    my $ip = is_ipv4($value);
+    return unless defined $ip;
 
-       return unless Net::Netmask::findNetblock($ip,_mask('multicast'));
-       return $ip;
+    return unless Net::Netmask::findNetblock($ip, _mask('multicast'));
+    return $ip;
 }
-
 
 =pod
 
@@ -652,18 +646,17 @@ actually exists.
 
 =cut
 
-
 sub is_linklocal_ipv4 {
-       my $self = shift if ref($_[0]); 
-       my $value = shift;
+    my $self = shift if ref($_[0]);
+    my $value = shift;
 
-       return unless defined($value);
+    return unless defined($value);
 
-       my $ip = is_ipv4($value);
-       return unless defined $ip;
+    my $ip = is_ipv4($value);
+    return unless defined $ip;
 
-       return unless Net::Netmask::findNetblock($ip,_mask('linklocal'));
-       return $ip;
+    return unless Net::Netmask::findNetblock($ip, _mask('linklocal'));
+    return $ip;
 }
 
 =pod
@@ -715,23 +708,18 @@ actually exists.
 
 =cut
 
-
 sub is_linklocal_ipv6 {
-       my $self = shift if ref($_[0]); 
-       my $value = shift;
+    my $self = shift if ref($_[0]);
+    my $value = shift;
 
-       return unless defined($value);
+    return unless defined($value);
 
-       my $ip = is_ipv6($value);
-       return unless defined $ip;
+    my $ip = is_ipv6($value);
+    return unless defined $ip;
 
-       return unless $ip =~ /^fe80:/i;
-       return $ip;
+    return unless $ip =~ /^fe80:/i;
+    return $ip;
 }
-
-
-
-
 
 =pod
 
@@ -772,57 +760,52 @@ non- private/testnet/loopback ip.
 
 =cut
 
-
 sub is_public_ipv4 {
-        my $self = shift if ref($_[0]); 
-        my $value = shift;
-        
-        return unless defined($value);
+    my $self = shift if ref($_[0]);
+    my $value = shift;
 
-	my $ip = is_ipv4($value);
-	return unless defined $ip;
+    return unless defined($value);
 
-	#Logic for this is inverted... all values from mask are 'not public'
-	return if Net::Netmask::findNetblock($ip,_mask('public'));
-	return $ip;
+    my $ip = is_ipv4($value);
+    return unless defined $ip;
+
+    #Logic for this is inverted... all values from mask are 'not public'
+    return if Net::Netmask::findNetblock($ip, _mask('public'));
+    return $ip;
 }
-
-
-
 
 #We only want to bother building this once for each type
 #We store it globally as it is effectively a constant
 sub _mask {
-	my $type = (shift);
-	return $MASK{$type} if (defined $MASK{$type});
-	my @masks;
-	if ($type eq 'public') {
-		@masks = (LOOPBACK, TESTNET, PRIVATE,MULTICAST,LINKLOCAL);
-	} elsif ($type eq 'loopback') {
-		@masks = (LOOPBACK);
-	} elsif ($type eq 'private') {
-		@masks = (PRIVATE);
-	} elsif ($type eq 'testnet') {
-		@masks = (TESTNET);
-	} elsif ($type eq 'multicast') {
-		@masks = (MULTICAST);
-	} elsif ($type eq 'linklocal') {
-		@masks = (LINKLOCAL);
-	} else {
-		@masks = ([$type]);
-	}
+    my $type = (shift);
+    return $MASK{$type} if (defined $MASK{$type});
+    my @masks;
+    if ($type eq 'public') {
+        @masks = (LOOPBACK, TESTNET, PRIVATE, MULTICAST, LINKLOCAL);
+    } elsif ($type eq 'loopback') {
+        @masks = (LOOPBACK);
+    } elsif ($type eq 'private') {
+        @masks = (PRIVATE);
+    } elsif ($type eq 'testnet') {
+        @masks = (TESTNET);
+    } elsif ($type eq 'multicast') {
+        @masks = (MULTICAST);
+    } elsif ($type eq 'linklocal') {
+        @masks = (LINKLOCAL);
+    } else {
+        @masks = ([$type]);
+    }
 
-	my $mask = {};
-	foreach my $default (@masks) {
-		foreach my $range (@{$default}) {
-			my $block = Net::Netmask->new($range);
-			$block->storeNetblock($mask);
-		}   
-	}   
-	$MASK{$type}= $mask;
-	return $MASK{$type};
+    my $mask = {};
+    foreach my $default (@masks) {
+        foreach my $range (@{$default}) {
+            my $block = Net::Netmask->new($range);
+            $block->storeNetblock($mask);
+        }
+    }
+    $MASK{$type} = $mask;
+    return $MASK{$type};
 }
-
 
 1;
 __END__
