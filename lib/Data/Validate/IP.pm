@@ -6,12 +6,6 @@ use Net::Netmask;
 
 require Exporter;
 
-use constant LOOPBACK  => [qw(127.0.0.0/8)];
-use constant TESTNET   => [qw(192.0.2.0/24)];
-use constant PRIVATE   => [qw(10.0.0.0/8 172.16.0.0/12 192.168.0.0/16)];
-use constant MULTICAST => [qw(224.0.0.0/4)];
-use constant LINKLOCAL => [qw(169.254.0.0/16)];
-
 our $HAS_SOCKET;
 BEGIN {
     $HAS_SOCKET = (!$ENV{DVI_NO_SOCKET})
@@ -62,7 +56,6 @@ our @EXPORT = qw(
 our $VERSION = '0.14';
 
 #Global, we store this only once
-my %MASK;
 
 # ABSTRACT: ipv4 and ipv6 validation methods
 
@@ -812,42 +805,37 @@ sub is_public_ipv4 {
     my $ip = is_ipv4($value);
     return unless defined $ip;
 
-    #Logic for this is inverted... all values from mask are 'not public'
-    return if Net::Netmask::findNetblock($ip, _mask('public'));
+    return if Net::Netmask::findNetblock($ip, _mask('nonpublic'));
     return $ip;
 }
 
-#We only want to bother building this once for each type
-#We store it globally as it is effectively a constant
-sub _mask {
-    my $type = (shift);
-    return $MASK{$type} if (defined $MASK{$type});
-    my @masks;
-    if ($type eq 'public') {
-        @masks = (LOOPBACK, TESTNET, PRIVATE, MULTICAST, LINKLOCAL);
-    } elsif ($type eq 'loopback') {
-        @masks = (LOOPBACK);
-    } elsif ($type eq 'private') {
-        @masks = (PRIVATE);
-    } elsif ($type eq 'testnet') {
-        @masks = (TESTNET);
-    } elsif ($type eq 'multicast') {
-        @masks = (MULTICAST);
-    } elsif ($type eq 'linklocal') {
-        @masks = (LINKLOCAL);
-    } else {
-        @masks = ([$type]);
-    }
+{
+    my %ipv4_networks = (
+        loopback  => [qw(127.0.0.0/8)],
+        private   => [qw(10.0.0.0/8 172.16.0.0/12 192.168.0.0/16)],
+        testnet   => [qw(192.0.2.0/24)],
+        multicast => [qw(224.0.0.0/4)],
+        linklocal => [qw(169.254.0.0/16)],
+    );
 
-    my $mask = {};
-    foreach my $default (@masks) {
-        foreach my $range (@{$default}) {
+    $ipv4_networks{nonpublic} = [ map { @{$_} } values %ipv4_networks ];
+
+    my %mask;
+
+    sub _mask {
+        my $type = shift;
+        return $mask{$type} if $mask{$type};
+
+        my $mask = {};
+
+        my $ranges = $ipv4_networks{$type} || [$type];
+        foreach my $range (@{$ranges}) {
             my $block = Net::Netmask->new($range);
             $block->storeNetblock($mask);
         }
+
+        return $mask{$type} = $mask;
     }
-    $MASK{$type} = $mask;
-    return $MASK{$type};
 }
 
 1;
