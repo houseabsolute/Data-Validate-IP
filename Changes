@@ -2,7 +2,7 @@ Revision history for Perl extension Data::Validate::IP.
 
     - If your installed version of Socket.pm provides an inet_pton subroutine
       we use that to do validation. This is about 5x faster for IPv4 addresses
-      and 20 times faster for IPv6. (Dave Rolsky)
+      and 20 times faster for IPv6.
     - Various unroutable networks are now recognized as non-public
       addresses. Based on a patch by Greg Oschwald. (Bug#83081).
     - Fixed bug where '::' was not recognized as a valid IPv6 address. (Bug#81700)
