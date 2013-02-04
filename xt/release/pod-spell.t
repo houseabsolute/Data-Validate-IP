@@ -19,11 +19,11 @@ local $ENV{LC_ALL} = 'C';
 all_pod_files_spelling_ok;
 
 __DATA__
-Neely
-Rolsky
 IP
 IPv
+Neely
 OO
+Rolsky
 Sonnen
 ip
 ipv
@@ -31,4 +31,5 @@ loopback
 multicast
 namespace
 testnet
+unroutable
 validator
