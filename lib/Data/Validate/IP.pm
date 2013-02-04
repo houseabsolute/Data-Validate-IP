@@ -598,7 +598,7 @@ sub is_testnet_ipv4 {
 
 =item I<Description>
 
-Returns the untainted ip addres if the test value appears to be a well-formed
+Returns the untainted ip address if the test value appears to be a well-formed
 multicast ip address.
 
 =item I<Arguments>
@@ -656,7 +656,7 @@ sub is_multicast_ipv4 {
 
 =item I<Description>
 
-Returns the untainted ip addres if the test value appears to be a well-formed
+Returns the untainted ip address if the test value appears to be a well-formed
 link-local ip address.
 
 =item I<Arguments>
@@ -714,7 +714,7 @@ sub is_linklocal_ipv4 {
 
 =item I<Description>
 
-Returns the untainted ip addres if the test value appears to be a well-formed
+Returns the untainted ip address if the test value appears to be a well-formed
 link-local ip address.
 
 =item I<Arguments>
