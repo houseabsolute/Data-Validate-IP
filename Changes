@@ -5,6 +5,7 @@ Revision history for Perl extension Data::Validate::IP.
       and 20 times faster for IPv6.
     - Various unroutable networks are now recognized as non-public
       addresses. Based on a patch by Greg Oschwald. (Bug#83081).
+    - Added is_unroutable_ipv4 exported sub.
     - Fixed bug where '::' was not recognized as a valid IPv6 address. (Bug#81700)
     - Fixed bug where ipv6 related subroutines were not untainting their return value.
 
