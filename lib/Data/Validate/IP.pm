@@ -12,6 +12,25 @@ use constant PRIVATE   => [qw(10.0.0.0/8 172.16.0.0/12 192.168.0.0/16)];
 use constant MULTICAST => [qw(224.0.0.0/4)];
 use constant LINKLOCAL => [qw(169.254.0.0/16)];
 
+our $HAS_SOCKET;
+BEGIN {
+    $HAS_SOCKET = (!$ENV{DVI_NO_SOCKET})
+        && eval {
+        require Socket;
+        Socket->import(qw( AF_INET AF_INET6 inet_pton ));
+        1;
+        };
+
+    if ($HAS_SOCKET) {
+        *is_ipv4 = \&_fast_is_ipv4;
+        *is_ipv6 = \&_fast_is_ipv6;
+    }
+    else {
+        *is_ipv4 = \&_slow_is_ipv4;
+        *is_ipv6 = \&_slow_is_ipv6;
+    }
+}
+
 our @ISA = qw(Exporter);
 
 # Items to export into callers namespace by default. Note: do not export
@@ -164,7 +183,18 @@ actually exists. It only looks to see that the format is appropriate.
 
 =cut
 
-sub is_ipv4 {
+sub _fast_is_ipv4 {
+    my $self = shift if ref($_[0]);
+    my $value = shift;
+
+    return
+        unless defined $value && defined inet_pton(Socket::AF_INET(), $value);
+
+    $value =~ /(.+)/;
+    return $1;
+}
+
+sub _slow_is_ipv4 {
     my $self = shift if ref($_[0]);
     my $value = shift;
 
@@ -220,7 +250,19 @@ actually exists. It only looks to see that the format is appropriate.
 
 =cut
 
-sub is_ipv6 {
+sub _fast_is_ipv6 {
+    my $self = shift if ref($_[0]);
+    my $value = shift;
+
+    return
+        unless defined $value
+        && defined inet_pton(Socket::AF_INET6(), $value);
+
+    $value =~ /(.+)/;
+    return $1;
+}
+
+sub _slow_is_ipv6 {
     my $self = shift if ref($_[0]);
     my $value = shift;
 
