@@ -33,26 +33,41 @@ my %ipv4_types = (
     ],
 );
 
+my %ipv6_types = (
+    private => [
+        qw(
+            fc00::
+            fc01::1234
+            fdef::
+            fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+            )
+    ],
+    public    => [qw(::abcd:1234 1:: 2:: 1:1:1:1:: abcd::)],
+    loopback  => [qw(::1)],
+    multicast => [
+        qw(
+            ff00::
+            ffff::
+            ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+            )
+    ],
+    linklocal => [
+        qw(
+            fe80::
+            fe89::
+            febf::
+            febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+            )
+    ],
+);
+
 sub run_tests {
     _ipv4_basic_tests();
-    _ipv4_type_tests();
+    _type_tests(\%ipv4_types, 4);
     _ipv4_innet_tests();
 
     _ipv6_basic_tests();
-
-    {
-        is(
-            is_linklocal_ipv6('fe80:db8::4'), 'fe80:db8::4',
-            'is_linklocal_ipv6(fe80:db8::4) returns fe80:db8::4'
-        );
-
-        for my $bad (qw(1001:2abc:0:: fe80:db8)) {
-            is(
-                is_linklocal_ipv6($bad), undef,
-                "is_linklocal_ipv6($bad) returns undef"
-            );
-        }
-    }
+    _type_tests(\%ipv6_types, 6);
 }
 
 sub _ipv4_basic_tests {
@@ -91,35 +106,6 @@ sub _ipv4_basic_tests {
                 $object->$is_sub_name($ip), undef,
                 "->$is_sub_name($ip) returns undef"
             );
-        }
-    }
-}
-
-sub _ipv4_type_tests {
-    my @types = keys %ipv4_types;
-
-    for my $type (@types) {
-        for my $ip (@{ $ipv4_types{$type} }) {
-            my ($is_sub_name, $is_sub) = _sub_for_type($type, 4);
-
-            is($is_sub->($ip), $ip, "$is_sub_name($ip) returns $ip");
-            is(
-                $object->$is_sub_name($ip), $ip,
-                "->$is_sub_name($ip) returns $ip"
-            );
-
-            for my $other (grep { $_ ne $type } @types) {
-                my ($isnt_sub_name, $isnt_sub) = _sub_for_type($other, 4);
-
-                is(
-                    $isnt_sub->($ip), undef,
-                    "$isnt_sub_name($ip) returns undef"
-                );
-                is(
-                    $object->$isnt_sub_name($ip), undef,
-                    "->$isnt_sub_name($ip) returns undef"
-                );
-            }
         }
     }
 }
@@ -183,6 +169,39 @@ sub _ipv6_basic_tests {
     for my $ip (@invalid) {
         is(is_ipv6($ip),          undef, "is_ipv6($ip) returns undef");
         is($object->is_ipv6($ip), undef, "->is_ipv6($ip) returns undef");
+    }
+}
+
+sub _type_tests {
+    my $types     = shift;
+    my $ip_number = shift;
+
+    my @types = keys %{$types};
+
+    for my $type (@types) {
+        for my $ip (@{ $types->{$type} }) {
+            my ($is_sub_name, $is_sub) = _sub_for_type($type, $ip_number);
+
+            is($is_sub->($ip), $ip, "$is_sub_name($ip) returns $ip");
+            is(
+                $object->$is_sub_name($ip), $ip,
+                "->$is_sub_name($ip) returns $ip"
+            );
+
+            for my $other (grep { $_ ne $type } @types) {
+                my ($isnt_sub_name, $isnt_sub)
+                    = _sub_for_type($other, $ip_number);
+
+                is(
+                    $isnt_sub->($ip), undef,
+                    "$isnt_sub_name($ip) returns undef"
+                );
+                is(
+                    $object->$isnt_sub_name($ip), undef,
+                    "->$isnt_sub_name($ip) returns undef"
+                );
+            }
+        }
     }
 }
 

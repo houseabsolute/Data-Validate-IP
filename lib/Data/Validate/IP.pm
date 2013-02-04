@@ -2,11 +2,13 @@ package Data::Validate::IP;
 
 use strict;
 use warnings;
+use NetAddr::IP;
 use Net::Netmask;
 
 require Exporter;
 
 our $HAS_SOCKET;
+
 BEGIN {
     $HAS_SOCKET = (!$ENV{DVI_NO_SOCKET})
         && eval {
@@ -34,15 +36,20 @@ our @ISA = qw(Exporter);
 # This allows declaration	use Data::Validate::IP ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
-our %EXPORT_TAGS = ('all' => [ qw(
+our %EXPORT_TAGS = (
+    'all' => [
+        qw(
 
-            ) ]);
+            )
+    ]
+);
 
 our @EXPORT_OK = (@{ $EXPORT_TAGS{'all'} });
 
 our @EXPORT = qw(
     is_ipv4
     is_ipv6
+
     is_innet_ipv4
     is_private_ipv4
     is_loopback_ipv4
@@ -51,6 +58,11 @@ our @EXPORT = qw(
     is_multicast_ipv4
     is_linklocal_ipv4
     is_unroutable_ipv4
+
+    is_private_ipv6
+    is_loopback_ipv6
+    is_public_ipv6
+    is_multicast_ipv6
     is_linklocal_ipv6
 );
 
@@ -282,7 +294,8 @@ sub _slow_is_ipv6 {
 
     if ($value =~ /[0123456789abcdef]{1,4}::$/) {
         $empty++;
-    } elsif ($value =~ /:$/) {
+    }
+    elsif ($value =~ /:$/) {
 
         #single trailing ':' is invalid
         return;
@@ -296,7 +309,8 @@ sub _slow_is_ipv6 {
     if ($empty == 2 && $value =~ /^::/) {
 
         #This is ok
-    } elsif ($empty > 1) {
+    }
+    elsif ($empty > 1) {
         return;
     }
 
@@ -305,7 +319,9 @@ sub _slow_is_ipv6 {
     }
 
     #Need 8 chunks, or we need an empty section that could be filled to represent the missing '0' sections
-    return unless (@chunks == $expected_chunks || @chunks < $expected_chunks && $empty);
+    return
+        unless (@chunks == $expected_chunks
+        || @chunks < $expected_chunks && $empty);
 
     my $return = join(':', @chunks);
 
@@ -393,7 +409,7 @@ sub is_innet_ipv4 {
     my $ip = is_ipv4($value);
     return unless defined $ip;
 
-    return unless Net::Netmask::findNetblock($ip, _mask($network));
+    return unless Net::Netmask::findNetblock($ip, _mask_ipv4($network));
     return $ip;
 }
 
@@ -459,7 +475,7 @@ sub is_private_ipv4 {
     my $ip = is_ipv4($value);
     return unless defined $ip;
 
-    return unless Net::Netmask::findNetblock($ip, _mask('private'));
+    return unless Net::Netmask::findNetblock($ip, _mask_ipv4('private'));
     return $ip;
 }
 
@@ -519,7 +535,7 @@ sub is_loopback_ipv4 {
     my $ip = is_ipv4($value);
     return unless defined $ip;
 
-    return unless Net::Netmask::findNetblock($ip, _mask('loopback'));
+    return unless Net::Netmask::findNetblock($ip, _mask_ipv4('loopback'));
     return $ip;
 }
 
@@ -578,7 +594,7 @@ sub is_testnet_ipv4 {
     my $ip = is_ipv4($value);
     return unless defined $ip;
 
-    return unless Net::Netmask::findNetblock($ip, _mask('testnet'));
+    return unless Net::Netmask::findNetblock($ip, _mask_ipv4('testnet'));
     return $ip;
 }
 
@@ -636,7 +652,7 @@ sub is_multicast_ipv4 {
     my $ip = is_ipv4($value);
     return unless defined $ip;
 
-    return unless Net::Netmask::findNetblock($ip, _mask('multicast'));
+    return unless Net::Netmask::findNetblock($ip, _mask_ipv4('multicast'));
     return $ip;
 }
 
@@ -694,7 +710,7 @@ sub is_linklocal_ipv4 {
     my $ip = is_ipv4($value);
     return unless defined $ip;
 
-    return unless Net::Netmask::findNetblock($ip, _mask('linklocal'));
+    return unless Net::Netmask::findNetblock($ip, _mask_ipv4('linklocal'));
     return $ip;
 }
 
@@ -782,69 +798,7 @@ sub is_unroutable_ipv4 {
     my $ip = is_ipv4($value);
     return unless defined $ip;
 
-    return unless Net::Netmask::findNetblock($ip, _mask('unroutable'));
-    return $ip;
-}
-
-=pod
-
-=item B<is_linklocal_ipv6> - is it a valid link-local ipv6 address
-
-  is_linklocal_ipv6($value);
-  or
-  $obj->is_linklocal_ipv6($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-link-local ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-=item I<From RFC 2462>
-
-   A link-local address is formed by prepending the well-known link-
-   local prefix FE80::0 [ADDR-ARCH] (of appropriate length) to the
-   interface identifier. If the interface identifier has a length of N
-   bits, the interface identifier replaces the right-most N zero bits of
-   the link-local prefix.  If the interface identifier is more than 118
-   bits in length, autoconfiguration fails and manual configuration is
-   required. Note that interface identifiers will typically be 64-bits
-   long and based on EUI-64 identifiers as described in [ADDR-ARCH].
-
-=back
-
-=cut
-
-sub is_linklocal_ipv6 {
-    my $self = shift if ref($_[0]);
-    my $value = shift;
-
-    return unless defined($value);
-
-    my $ip = is_ipv6($value);
-    return unless defined $ip;
-
-    return unless $ip =~ /^fe80:/i;
+    return unless Net::Netmask::findNetblock($ip, _mask_ipv4('unroutable'));
     return $ip;
 }
 
@@ -896,7 +850,7 @@ sub is_public_ipv4 {
     my $ip = is_ipv4($value);
     return unless defined $ip;
 
-    return if Net::Netmask::findNetblock($ip, _mask('nonpublic'));
+    return if Net::Netmask::findNetblock($ip, _mask_ipv4('nonpublic'));
     return $ip;
 }
 
@@ -930,7 +884,7 @@ sub is_public_ipv4 {
 
     my %mask;
 
-    sub _mask {
+    sub _mask_ipv4 {
         my $type = shift;
         return $mask{$type} if $mask{$type};
 
@@ -943,6 +897,236 @@ sub is_public_ipv4 {
         }
 
         return $mask{$type} = $mask;
+    }
+}
+
+=pod
+
+=item B<is_private_ipv6> - is it a valid private ipv6 address
+
+  is_private_ipv6($value);
+  or
+  $obj->is_private_ipv6($value);
+
+=over 4
+
+=item I<Description>
+
+Returns the untainted ip address if the test value appears to be a well-formed
+private ip address.
+
+=item I<Arguments>
+
+=over 4
+
+=item $value
+
+The potential ip to test.
+
+=back
+
+=item I<Returns>
+
+Returns the untainted ip on success, undef on failure.
+
+=item I<Notes, Exceptions, & Bugs>
+
+The function does not make any attempt to check whether an ip
+actually exists.
+
+=item I<From RFC 4193>
+
+   The default behavior of exterior routing protocol sessions between
+   administrative routing regions must be to ignore receipt of and not
+   advertise prefixes in the FC00::/7 block.  A network operator may
+   specifically configure prefixes longer than FC00::/7 for inter-site
+   communication.
+
+=back
+
+=item B<is_loopback_ipv6> - is it a valid loopback ipv6 address
+
+  is_loopback_ipv6($value);
+  or
+  $obj->is_loopback_ipv6($value);
+
+=over 4
+
+=item I<Description>
+
+Returns the untainted ip address if the test value appears to be a well-formed
+loopback ip address.
+
+=item I<Arguments>
+
+=over 4
+
+=item $value
+
+The potential ip to test.
+
+=back
+
+=item I<Returns>
+
+Returns the untainted ip on success, undef on failure.
+
+=item I<Notes, Exceptions, & Bugs>
+
+The function does not make any attempt to check whether an ip
+actually exists.
+
+=item I<From RFC 4291>
+
+   The unicast address 0:0:0:0:0:0:0:1 is called the loopback address.
+   It may be used by a node to send an IPv6 packet to itself.  It must
+   not be assigned to any physical interface.  It is treated as having
+   Link-Local scope, and may be thought of as the Link-Local unicast
+   address of a virtual interface (typically called the "loopback
+   interface") to an imaginary link that goes nowhere.
+
+=back
+
+=item B<is_multicast_ipv6> - is it a valid multicast ipv6 address
+
+  is_multicast_ipv6($value);
+  or
+  $obj->is_multicast_ipv6($value);
+
+=over 4
+
+=item I<Description>
+
+Returns the untainted ip address if the test value appears to be a well-formed
+multicast ip address.
+
+=item I<Arguments>
+
+=over 4
+
+=item $value
+
+The potential ip to test.
+
+=back
+
+=item I<Returns>
+
+Returns the untainted ip on success, undef on failure.
+
+=item I<Notes, Exceptions, & Bugs>
+
+The function does not make any attempt to check whether an ip
+actually exists.
+
+=item I<From RFC 4291>
+
+   An IPv6 multicast address is an identifier for a group of interfaces
+   (typically on different nodes).  An interface may belong to any
+   number of multicast groups.  Multicast addresses have the following
+   format:
+
+   |   8    |  4 |  4 |                  112 bits                   |
+   +------ -+----+----+---------------------------------------------+
+   |11111111|flgs|scop|                  group ID                   |
+   +--------+----+----+---------------------------------------------+
+
+=back
+
+=item B<is_linklocal_ipv6> - is it a valid link-local ipv6 address
+
+  is_linklocal_ipv6($value);
+  or
+  $obj->is_linklocal_ipv6($value);
+
+=over 4
+
+=item I<Description>
+
+Returns the untainted ip address if the test value appears to be a well-formed
+link-local ip address.
+
+=item I<Arguments>
+
+=over 4
+
+=item $value
+
+The potential ip to test.
+
+=back
+
+=item I<Returns>
+
+Returns the untainted ip on success, undef on failure.
+
+=item I<Notes, Exceptions, & Bugs>
+
+The function does not make any attempt to check whether an ip
+actually exists.
+
+=item I<From RFC 4291>
+
+   Link-Local addresses are for use on a single link.  Link-Local
+   addresses have the following format:
+
+   |   10     |
+   |  bits    |         54 bits         |          64 bits           |
+   +----------+-------------------------+----------------------------+
+   |1111111010|           0             |       interface ID         |
+   +----------+-------------------------+----------------------------+
+
+   Link-Local addresses are designed to be used for addressing on a
+   single link for purposes such as automatic address configuration,
+   neighbor discovery, or when no routers are present.
+
+=back
+
+=cut
+
+{
+    my %ipv6_networks = (
+        loopback  => NetAddr::IP->new6('::1/128'),
+        private   => NetAddr::IP->new6('fc00::/7'),
+        multicast => NetAddr::IP->new6('ff00::/8'),
+        linklocal => NetAddr::IP->new6('fe80::/10'),
+        special   => NetAddr::IP->new6('2001:01f8::/29'),
+    );
+
+    for my $type (keys %ipv6_networks) {
+        my $net = $ipv6_networks{$type};
+
+        my $sub = sub {
+            shift if ref $_[0];
+            my $value = shift;
+
+            return unless defined($value);
+
+            my $ip = is_ipv6($value);
+            return unless defined $ip;
+
+            return $ip if $net->contains(NetAddr::IP->new6($ip));
+            return;
+        };
+
+        no strict 'refs';
+        *{ 'is_' . $type . '_ipv6' } = $sub;
+    }
+
+    sub is_public_ipv6 {
+        shift if ref $_[0];
+        my $value = shift;
+
+        return unless defined($value);
+
+        my $ip = is_ipv6($value);
+        return unless defined $ip;
+
+        for my $net (values %ipv6_networks) {
+            return if $net->contains(NetAddr::IP->new6($ip));
+        }
+
+        return $ip;
     }
 }
 
@@ -962,7 +1146,7 @@ B<[RFC 5735] [RFC 1918]>
 
 IPv6
 
-B<[RFC 2460] [RFC 4291] [RFC 4294]>
+B<[RFC 2460] [RFC 4193] [RFC 4291] [RFC 6434]>
 
 =over 4
 
