@@ -1,6 +1,9 @@
 package    # hide form PAUSE
     Test::Data::Validate::IP;
 
+use strict;
+use warnings;
+
 use Data::Validate::IP;
 use Exporter qw( import );
 use Test::More 0.88;
@@ -8,6 +11,27 @@ use Test::More 0.88;
 our @EXPORT = 'run_tests';
 
 my $object = Data::Validate::IP->new();
+
+my %ipv4_types = (
+    private    => [qw(10.0.0.1 172.16.0.1 192.168.0.1)],
+    public     => [qw(1.2.3.4 123.123.44.55 216.17.184.1)],
+    loopback   => [qw(127.0.0.1)],
+    testnet    => [qw(192.0.2.9)],
+    multicast  => [qw(224.0.0.1)],
+    linklocal  => [qw(169.254.0.1)],
+    unroutable => [
+        qw(
+            0.0.0.1
+            100.64.1.2
+            192.0.0.4
+            198.18.0.55
+            203.0.113.44
+            240.0.0.4
+            255.255.255.254
+            255.255.255.255
+            )
+    ],
+);
 
 sub run_tests {
     _ipv4_basic_tests();
@@ -40,8 +64,8 @@ sub _ipv4_basic_tests {
     );
 
     for my $ip (@valid_ipv4) {
-        is(is_ipv4($good),          $good, "is_ipv4($ip) returns $ip");
-        is($object->is_ipv4($good), $good, "->is_ipv4($ip) returns $ip");
+        is(is_ipv4($ip),          $ip, "is_ipv4($ip) returns $ip");
+        is($object->is_ipv4($ip), $ip, "->is_ipv4($ip) returns $ip");
     }
 
     my @invalid_ipv4 = qw(
@@ -56,34 +80,24 @@ sub _ipv4_basic_tests {
     );
 
     for my $ip (@invalid_ipv4) {
-        is(is_ipv4($good),          undef, "is_ipv4($ip) returns undef");
-        is($object->is_ipv4($good), undef, "->is_ipv4($ip) returns undef");
+        is(is_ipv4($ip),          undef, "is_ipv4($ip) returns undef");
+        is($object->is_ipv4($ip), undef, "->is_ipv4($ip) returns undef");
+
+        for my $type (keys %ipv4_types) {
+            my ($is_sub_name, $is_sub) = _sub_for_type($type, 4);
+
+            is($is_sub->($ip), undef, "$is_sub_name($ip) returns undef");
+            is(
+                $object->$is_sub_name($ip), undef,
+                "->$is_sub_name($ip) returns undef"
+            );
+        }
     }
 }
 
 sub _ipv4_type_tests {
-    my %ipv4_types = (
-        private    => [qw(10.0.0.1 172.16.0.1 192.168.0.1)],
-        public     => [qw(1.2.3.4 123.123.44.55 216.17.184.1)],
-        loopback   => [qw(127.0.0.1)],
-        testnet    => [qw(192.0.2.9)],
-        multicast  => [qw(224.0.0.1)],
-        linklocal  => [qw(169.254.0.1)],
-        unroutable => [
-            qw(
-                0.0.0.1
-                100.64.1.2
-                192.0.0.4
-                198.18.0.55
-                203.0.113.44
-                240.0.0.4
-                255.255.255.254
-                255.255.255.255
-                )
-        ],
-    );
-
     my @types = keys %ipv4_types;
+
     for my $type (@types) {
         for my $ip (@{ $ipv4_types{$type} }) {
             my ($is_sub_name, $is_sub) = _sub_for_type($type, 4);
