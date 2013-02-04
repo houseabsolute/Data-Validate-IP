@@ -95,6 +95,8 @@ Don't assume the return will be true. (e.g. is_username('0'))
 
 The value to test is always the first (and often only) argument.
 
+All of the functions below are exported by default.
+
 =head1 FUNCTIONS
 
 =over 4
