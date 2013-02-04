@@ -186,7 +186,7 @@ actually exists. It only looks to see that the format is appropriate.
 =cut
 
 sub _fast_is_ipv4 {
-    my $self = shift if ref($_[0]);
+    shift if ref $_[0];
     my $value = shift;
 
     return
@@ -197,7 +197,7 @@ sub _fast_is_ipv4 {
 }
 
 sub _slow_is_ipv4 {
-    my $self = shift if ref($_[0]);
+    shift if ref $_[0];
     my $value = shift;
 
     return unless defined($value);
@@ -253,7 +253,7 @@ actually exists. It only looks to see that the format is appropriate.
 =cut
 
 sub _fast_is_ipv6 {
-    my $self = shift if ref($_[0]);
+    shift if ref $_[0];
     my $value = shift;
 
     return
@@ -265,7 +265,7 @@ sub _fast_is_ipv6 {
 }
 
 sub _slow_is_ipv6 {
-    my $self = shift if ref($_[0]);
+    shift if ref $_[0];
     my $value = shift;
 
     return unless defined($value);
@@ -467,7 +467,7 @@ actually exists.
 =cut
 
 sub is_private_ipv4 {
-    my $self = shift if ref($_[0]);
+    shift if ref $_[0];
     my $value = shift;
 
     return unless defined($value);
@@ -527,7 +527,7 @@ actually exists.
 =cut
 
 sub is_loopback_ipv4 {
-    my $self = shift if ref($_[0]);
+    shift if ref $_[0];
     my $value = shift;
 
     return unless defined($value);
@@ -586,7 +586,7 @@ actually exists.
 =cut
 
 sub is_testnet_ipv4 {
-    my $self = shift if ref($_[0]);
+    shift if ref $_[0];
     my $value = shift;
 
     return unless defined($value);
@@ -644,7 +644,7 @@ actually exists.
 =cut
 
 sub is_multicast_ipv4 {
-    my $self = shift if ref($_[0]);
+    shift if ref $_[0];
     my $value = shift;
 
     return unless defined($value);
@@ -702,7 +702,7 @@ actually exists.
 =cut
 
 sub is_linklocal_ipv4 {
-    my $self = shift if ref($_[0]);
+    shift if ref $_[0];
     my $value = shift;
 
     return unless defined($value);
@@ -790,7 +790,7 @@ actually exists.
 =cut
 
 sub is_unroutable_ipv4 {
-    my $self = shift if ref($_[0]);
+    shift if ref $_[0];
     my $value = shift;
 
     return unless defined($value);
@@ -842,7 +842,7 @@ non- private/testnet/loopback ip.
 =cut
 
 sub is_public_ipv4 {
-    my $self = shift if ref($_[0]);
+    shift if ref $_[0];
     my $value = shift;
 
     return unless defined($value);
