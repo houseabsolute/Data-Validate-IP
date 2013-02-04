@@ -64,18 +64,12 @@ our $VERSION = '0.14';
 #Global, we store this only once
 my %MASK;
 
-# Preloaded methods go here.
-
-#
-
-=head1 NAME
-
-Data::Validate::IP - ipv4 and ipv6 validation methods
+# ABSTRACT: ipv4 and ipv6 validation methods
 
 =head1 SYNOPSIS
 
   use Data::Validate::IP qw(is_ipv4 is_ipv6);
-  
+
   if(is_ipv4($suspect)){
         print "Looks like an ipv4 address";
   } else {
@@ -87,11 +81,11 @@ Data::Validate::IP - ipv4 and ipv6 validation methods
   } else {
         print "Not an ipv6 address\n";
   }
-  
+
 
   # or as an object
   my $v = Data::Validate::IP->new();
-  
+
   die "not an ipv4 ip" unless ($v->is_ipv4('domain.com'));
 
   die "not an ipv6 ip" unless ($v->is_ipv6('domain.com'));
@@ -99,7 +93,7 @@ Data::Validate::IP - ipv4 and ipv6 validation methods
 =head1 DESCRIPTION
 
 This module collects ip validation routines to make input validation,
-and untainting easier and more readable. 
+and untainting easier and more readable.
 
 All functions return an untainted value if the test passes, and undef if
 it fails.  This means that you should always check for a defined status explicitly.
@@ -158,7 +152,7 @@ sub new {
 =item I<Description>
 
 Returns the untainted ip address if the test value appears to be a well-formed
-ip address. 
+ip address.
 
 =item I<Arguments>
 
@@ -176,7 +170,7 @@ Returns the untainted ip on success, undef on failure.
 
 =item I<Notes, Exceptions, & Bugs>
 
-The function does not make any attempt to check whether an ip  
+The function does not make any attempt to check whether an ip
 actually exists. It only looks to see that the format is appropriate.
 
 =back
@@ -217,12 +211,12 @@ sub _slow_is_ipv4 {
 =pod
 
 =item B<is_ipv6> - does the value look like an ip v6 address?
-                
+
   is_ipv6($value);
-                
+
 =over 4
 
-=item I<Description>  
+=item I<Description>
 
 Returns the untainted ip address if the test value appears to be a well-formed
 ip address.
@@ -387,7 +381,7 @@ Returns the untainted ip on success, undef on failure.
 =item I<Notes, Exceptions, & Bugs>
 
 The function does not make any attempt to check whether an ip
-actually exists. 
+actually exists.
 
 =back
 
@@ -409,7 +403,7 @@ sub is_innet_ipv4 {
 
 =pod
 
-=item B<is_private_ipv4> - is it a valid private ipv4 address 
+=item B<is_private_ipv4> - is it a valid private ipv4 address
 
   is_private_ipv4($value);
   or
@@ -439,7 +433,7 @@ Returns the untainted ip on success, undef on failure.
 =item I<Notes, Exceptions, & Bugs>
 
 The function does not make any attempt to check whether an ip
-actually exists. 
+actually exists.
 
 =item I<From RFC 3330>
 
@@ -475,7 +469,7 @@ sub is_private_ipv4 {
 
 =pod
 
-=item B<is_loopback_ipv4> - is it a valid loopback ipv4 address 
+=item B<is_loopback_ipv4> - is it a valid loopback ipv4 address
 
   is_loopback_ipv4($value);
   or
@@ -505,7 +499,7 @@ Returns the untainted ip on success, undef on failure.
 =item I<Notes, Exceptions, & Bugs>
 
 The function does not make any attempt to check whether an ip
-actually exists. 
+actually exists.
 
 =item I<From RFC 3330>
 
@@ -535,7 +529,7 @@ sub is_loopback_ipv4 {
 
 =pod
 
-=item B<is_testnet_ipv4> - is it a valid testnet ipv4 address 
+=item B<is_testnet_ipv4> - is it a valid testnet ipv4 address
 
   is_testnet_ipv4($value);
   or
@@ -565,7 +559,7 @@ Returns the untainted ip on success, undef on failure.
 =item I<Notes, Exceptions, & Bugs>
 
 The function does not make any attempt to check whether an ip
-actually exists. 
+actually exists.
 
 =item I<From RFC 3330>
 
@@ -772,7 +766,7 @@ sub is_linklocal_ipv6 {
 
 =pod
 
-=item B<is_public_ipv4> - is it a valid public ipv4 address 
+=item B<is_public_ipv4> - is it a valid public ipv4 address
 
   is_public_ipv4($value);
   or
@@ -802,7 +796,7 @@ Returns the untainted ip on success, undef on failure.
 =item I<Notes, Exceptions, & Bugs>
 
 The function does not make any attempt to check whether an ip
-actually exists or could truly route.  This is true for any 
+actually exists or could truly route.  This is true for any
 non- private/testnet/loopback ip.
 
 =back
@@ -868,11 +862,11 @@ __END__
 
 IPv4
 
-b<[RFC 3330] [RFC 1918] [RFC 1700]>
+B<[RFC 3330] [RFC 1918] [RFC 1700]>
 
 IPv6
 
-b<[RFC 2460] [RFC 4291] [RFC 4294]>
+B<[RFC 2460] [RFC 4291] [RFC 4294]>
 
 =over 4
 
@@ -886,26 +880,10 @@ b<[RFC 2460] [RFC 4291] [RFC 4294]>
 
 IPv6 Support is new, please test it thoroughly and report any bugs.
 
-=head1 AUTHOR
-
-Neil Neely <F<neil@neely.cx>>.
-
-=head1 ACKNOWLEDGEMENTS 
+=head1 ACKNOWLEDGEMENTS
 
 Thanks to Richard Sonnen <F<sonnen@richardsonnen.com>> for writing the Data::Validate module.
 
 Thanks to Matt Dainty <F<matt@bodgit-n-scarper.com>> for adding the is_multicast_ipv4 and is_linklocal_ipv4 code.
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (c) 2005-2010 Neil Neely.  
-
-
-
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.2 or,
-at your option, any later version of Perl 5 you may have available.
-
 
 =cut
