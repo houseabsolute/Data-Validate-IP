@@ -12,6 +12,7 @@ my $object = Data::Validate::IP->new();
 sub run_tests {
     _ipv4_basic_tests();
     _ipv4_type_tests();
+    _ipv4_innet_tests();
 
     _ipv6_basic_tests();
 
@@ -106,6 +107,27 @@ sub _ipv4_type_tests {
                 );
             }
         }
+    }
+}
+
+sub _ipv4_innet_tests {
+    my @tests = (
+        [ '216.17.184.1', '216.17.184.0/24', 1 ],
+        [ '127.0.0.1',    '216.17.184.0/24', 0 ],
+        [ 'invalid',      '216.17.184.0/24', 0 ],
+        [ '1.2.3.4',      'default',         1 ],
+    );
+
+    for my $triplet (@tests) {
+        my ($ip, $network, $is_member) = @{$triplet};
+
+        my $expect = $is_member ? $ip : undef;
+
+        my $expect_string = $expect || 'undef';
+        is(
+            is_innet_ipv4($ip, $network), $expect,
+            "is_innet_ipv4($ip, $network) returns $expect_string"
+        );
     }
 }
 
