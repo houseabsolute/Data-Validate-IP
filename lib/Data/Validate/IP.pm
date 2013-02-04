@@ -50,6 +50,7 @@ our @EXPORT = qw(
     is_public_ipv4
     is_multicast_ipv4
     is_linklocal_ipv4
+    is_unroutable_ipv4
     is_linklocal_ipv6
 );
 
@@ -428,7 +429,7 @@ Returns the untainted ip on success, undef on failure.
 The function does not make any attempt to check whether an ip
 actually exists.
 
-=item I<From RFC 3330>
+=item I<From RFC 5735>
 
    10.0.0.0/8 - This block is set aside for use in private networks.
    Its intended use is documented in [RFC1918].  Addresses within this
@@ -494,7 +495,7 @@ Returns the untainted ip on success, undef on failure.
 The function does not make any attempt to check whether an ip
 actually exists.
 
-=item I<From RFC 3330>
+=item I<From RFC 5735>
 
    127.0.0.0/8 - This block is assigned for use as the Internet host
    loopback address.  A datagram sent by a higher level protocol to an
@@ -554,7 +555,7 @@ Returns the untainted ip on success, undef on failure.
 The function does not make any attempt to check whether an ip
 actually exists.
 
-=item I<From RFC 3330>
+=item I<From RFC 5735>
 
    192.0.2.0/24 - This block is assigned as "TEST-NET" for use in
    documentation and example code.  It is often used in conjunction with
@@ -613,7 +614,7 @@ Returns the untainted ip on success, undef on failure.
 The function does not make any attempt to check whether an ip
 actually exists.
 
-=item I<From RFC 3330>
+=item I<From RFC 5735>
 
    224.0.0.0/4 - This block, formerly known as the Class D address
    space, is allocated for use in IPv4 multicast address assignments.
@@ -671,7 +672,7 @@ Returns the untainted ip on success, undef on failure.
 The function does not make any attempt to check whether an ip
 actually exists.
 
-=item I<From RFC 3330>
+=item I<From RFC 5735>
 
    169.254.0.0/16 - This is the "link local" block.  It is allocated for
    communication between hosts on a single link.  Hosts obtain these
@@ -692,6 +693,94 @@ sub is_linklocal_ipv4 {
     return unless defined $ip;
 
     return unless Net::Netmask::findNetblock($ip, _mask('linklocal'));
+    return $ip;
+}
+
+=pod
+
+=item B<is_unroutable_ipv4> - is it a valid unroutable ipv4 address
+
+  is_unroutable_ipv4($value);
+  or
+  $obj->is_unroutable_ipv4($value);
+
+=over 4
+
+=item I<Description>
+
+Returns the untainted ip address if the test value appears to be a well-formed
+unroutable ip address.
+
+=item I<Arguments>
+
+=over 4
+
+=item $value
+
+The potential ip to test.
+
+=back
+
+=item I<Returns>
+
+Returns the untainted ip on success, undef on failure.
+
+=item I<Notes, Exceptions, & Bugs>
+
+The function does not make any attempt to check whether an ip
+actually exists.
+
+=item I<From RFC 5375>
+
+   0.0.0.0/8 - Addresses in this block refer to source hosts on "this"
+   network.  Address 0.0.0.0/32 may be used as a source address for this
+   host on this network; other addresses within 0.0.0.0/8 may be used to
+   refer to specified hosts on this network ([RFC1122], Section
+   3.2.1.3).
+
+   192.0.0.0/24 - This block is reserved for IETF protocol assignments.
+   At the time of writing this document, there are no current
+   assignments.  Allocation policy for future assignments is given in
+   [RFC5736].
+
+   198.18.0.0/15 - This block has been allocated for use in benchmark
+   tests of network interconnect devices.  [RFC2544] explains that this
+   range was assigned to minimize the chance of conflict in case a
+   testing device were to be accidentally connected to part of the
+   Internet.  Packets with source addresses from this range are not
+   meant to be forwarded across the Internet.
+
+   198.51.100.0/24 - This block is assigned as "TEST-NET-2" for use in
+   documentation and example code.  It is often used in conjunction with
+   domain names example.com or example.net in vendor and protocol
+   documentation.  As described in [RFC5737], addresses within this
+   block do not legitimately appear on the public Internet and can be
+   used without any coordination with IANA or an Internet registry.
+
+   203.0.113.0/24 - This block is assigned as "TEST-NET-3" for use in
+   documentation and example code.  It is often used in conjunction with
+   domain names example.com or example.net in vendor and protocol
+   documentation.  As described in [RFC5737], addresses within this
+   block do not legitimately appear on the public Internet and can be
+   used without any coordination with IANA or an Internet registry.
+
+   240.0.0.0/4 - This block, formerly known as the Class E address
+   space, is reserved for future use; see [RFC1112], Section 4.
+
+=back
+
+=cut
+
+sub is_unroutable_ipv4 {
+    my $self = shift if ref($_[0]);
+    my $value = shift;
+
+    return unless defined($value);
+
+    my $ip = is_ipv4($value);
+    return unless defined $ip;
+
+    return unless Net::Netmask::findNetblock($ip, _mask('unroutable'));
     return $ip;
 }
 
@@ -867,7 +956,7 @@ __END__
 
 IPv4
 
-B<[RFC 3330] [RFC 1918] [RFC 1700]>
+B<[RFC 5735] [RFC 1918]>
 
 IPv6
 
