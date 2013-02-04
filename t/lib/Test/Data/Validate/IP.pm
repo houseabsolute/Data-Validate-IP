@@ -98,7 +98,7 @@ sub _ipv4_basic_tests {
         is(is_ipv4($ip),          undef, "is_ipv4($ip) returns undef");
         is($object->is_ipv4($ip), undef, "->is_ipv4($ip) returns undef");
 
-        for my $type (keys %ipv4_types) {
+        for my $type (sort keys %ipv4_types) {
             my ($is_sub_name, $is_sub) = _sub_for_type($type, 4);
 
             is($is_sub->($ip), undef, "$is_sub_name($ip) returns undef");
@@ -176,7 +176,7 @@ sub _type_tests {
     my $types     = shift;
     my $ip_number = shift;
 
-    my @types = keys %{$types};
+    my @types = sort keys %{$types};
 
     for my $type (@types) {
         for my $ip (@{ $types->{$type} }) {
