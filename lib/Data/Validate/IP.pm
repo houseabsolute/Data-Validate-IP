@@ -811,11 +811,28 @@ sub is_public_ipv4 {
 
 {
     my %ipv4_networks = (
-        loopback  => [qw(127.0.0.0/8)],
-        private   => [qw(10.0.0.0/8 172.16.0.0/12 192.168.0.0/16)],
-        testnet   => [qw(192.0.2.0/24)],
-        multicast => [qw(224.0.0.0/4)],
-        linklocal => [qw(169.254.0.0/16)],
+        loopback => [qw(127.0.0.0/8)],
+        private  => [
+            qw(
+                10.0.0.0/8
+                172.16.0.0/12
+                192.168.0.0/16
+                )
+        ],
+        testnet    => [qw(192.0.2.0/24)],
+        multicast  => [qw(224.0.0.0/4)],
+        linklocal  => [qw(169.254.0.0/16)],
+        unroutable => [
+            qw(
+                0.0.0.0/8
+                100.64.0.0/10
+                192.0.0.0/29
+                198.18.0.0/15
+                198.51.100.0/24
+                203.0.113.0/24
+                240.0.0.0/4
+                )
+        ],
     );
 
     $ipv4_networks{nonpublic} = [ map { @{$_} } values %ipv4_networks ];

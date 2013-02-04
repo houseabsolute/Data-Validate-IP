@@ -68,6 +68,17 @@ sub run_tests {
             );
         }
 
+        for my $neither (qw(0.0.0.0 127.0.0.1 224.0.0.1 245.1.1.1)) {
+            is(
+                is_private_ipv4($public), undef,
+                "is_private_ipv4($public) returns undef"
+            );
+            is(
+                is_public_ipv4($public), undef,
+                "is_public_ipv4($public) returns undef"
+            );
+        }
+
         for my $invalid (qw(ff00:: not-valid)) {
             is(
                 is_private_ipv4($invalid), undef,
