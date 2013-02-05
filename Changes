@@ -6,8 +6,8 @@ Revision history for Perl extension Data::Validate::IP.
     - Various unroutable networks are now recognized as non-public
       addresses. Based on a patch by Greg Oschwald. (Bug#83081).
     - Added is_unroutable_ipv4 exported sub.
-    - Added is_public_ipv6, is_private_ipv6, is_loopback_ipv6, and
-      is_multicast_ipv6 subroutines.
+    - Added is_public_ipv6, is_private_ipv6, is_loopback_ipv6,
+      is_multicast_ipv6, and is_special_ipv6 subroutines.
     - Fixed the is_linklocal_ipv6 method. It didn't recognize the full
       link-local range properly.
     - Fixed bug where '::' was not recognized as a valid IPv6 address. (Bug#81700)
