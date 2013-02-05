@@ -42,7 +42,16 @@ my %ipv6_types = (
             fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
             )
     ],
-    public    => [qw(::abcd:1234 1:: 2:: 1:1:1:1:: abcd::)],
+    public => [
+        qw(
+            ::abcd:1234
+            1::
+            2::
+            1:1:1:1::
+            2001:abcd::
+            abcd::
+            )
+    ],
     loopback  => [qw(::1)],
     multicast => [
         qw(
@@ -57,6 +66,13 @@ my %ipv6_types = (
             fe89::
             febf::
             febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+            )
+    ],
+    special => [
+        qw(
+            2001::
+            2001::1234
+            2001:1ff:ffff:ffff:ffff:ffff:ffff:ffff
             )
     ],
 );

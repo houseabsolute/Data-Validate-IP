@@ -65,6 +65,7 @@ our @EXPORT = qw(
     is_public_ipv6
     is_multicast_ipv6
     is_linklocal_ipv6
+    is_special_ipv6
 );
 
 our $VERSION = '0.14';
@@ -954,6 +955,49 @@ actually exists.
 
 =back
 
+=item B<is_special_ipv6> - is it a valid special purpose ipv6 address
+
+  is_special_ipv6($value);
+  or
+  $obj->is_special_ipv6($value);
+
+=over 4
+
+=item I<Description>
+
+Returns the untainted ip address if the test value appears to be a well-formed
+special purpose ip address.
+
+=item I<Arguments>
+
+=over 4
+
+=item $value
+
+The potential ip to test.
+
+=back
+
+=item I<Returns>
+
+Returns the untainted ip on success, undef on failure.
+
+=item I<Notes, Exceptions, & Bugs>
+
+The function does not make any attempt to check whether an ip
+actually exists.
+
+=item I<From RFC 2928>
+
+   The block of Sub-TLA IDs assigned to the IANA (i.e., 2001:0000::/29 -
+   2001:01F8::/29) is for assignment for testing and experimental usage
+   to support activities such as the 6bone, and for new approaches like
+   exchanges.
+
+=back
+
+THe whole block of special IPv6 addresses can be written simple as 2001::/23.
+
 =cut
 
 {
@@ -962,7 +1006,7 @@ actually exists.
         private   => 'fc00::/7',
         multicast => 'ff00::/8',
         linklocal => 'fe80::/10',
-        special   => '2001:01f8::/29',
+        special   => '2001::/23',
     );
 
     _build_is_X_ip_subs(\%ipv6_networks, 6);
