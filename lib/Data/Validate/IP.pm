@@ -2,8 +2,9 @@ package Data::Validate::IP;
 
 use strict;
 use warnings;
+
 use NetAddr::IP;
-use Net::Netmask;
+use Scalar::Util qw( blessed );
 
 require Exporter;
 
@@ -400,7 +401,7 @@ actually exists.
 =cut
 
 sub is_innet_ipv4 {
-    my $self    = shift if ref($_[0]);
+    shift if ref $_[0];
     my $value   = shift;
     my $network = shift;
 
@@ -409,8 +410,11 @@ sub is_innet_ipv4 {
     my $ip = is_ipv4($value);
     return unless defined $ip;
 
-    return unless Net::Netmask::findNetblock($ip, _mask_ipv4($network));
-    return $ip;
+    $network = NetAddr::IP->new($network) or return;
+    my $netaddr_ip = NetAddr::IP->new($ip) or return;
+
+    return $ip if $network->contains($netaddr_ip);
+    return;
 }
 
 =pod
@@ -464,23 +468,6 @@ actually exists.
 
 =back
 
-=cut
-
-sub is_private_ipv4 {
-    shift if ref $_[0];
-    my $value = shift;
-
-    return unless defined($value);
-
-    my $ip = is_ipv4($value);
-    return unless defined $ip;
-
-    return unless Net::Netmask::findNetblock($ip, _mask_ipv4('private'));
-    return $ip;
-}
-
-=pod
-
 =item B<is_loopback_ipv4> - is it a valid loopback ipv4 address
 
   is_loopback_ipv4($value);
@@ -524,23 +511,6 @@ actually exists.
 
 =back
 
-=cut
-
-sub is_loopback_ipv4 {
-    shift if ref $_[0];
-    my $value = shift;
-
-    return unless defined($value);
-
-    my $ip = is_ipv4($value);
-    return unless defined $ip;
-
-    return unless Net::Netmask::findNetblock($ip, _mask_ipv4('loopback'));
-    return $ip;
-}
-
-=pod
-
 =item B<is_testnet_ipv4> - is it a valid testnet ipv4 address
 
   is_testnet_ipv4($value);
@@ -583,23 +553,6 @@ actually exists.
 
 =back
 
-=cut
-
-sub is_testnet_ipv4 {
-    shift if ref $_[0];
-    my $value = shift;
-
-    return unless defined($value);
-
-    my $ip = is_ipv4($value);
-    return unless defined $ip;
-
-    return unless Net::Netmask::findNetblock($ip, _mask_ipv4('testnet'));
-    return $ip;
-}
-
-=pod
-
 =item B<is_multicast_ipv4> - is it a valid multicast ipv4 address
 
   is_multicast_ipv4($value);
@@ -641,23 +594,6 @@ actually exists.
 
 =back
 
-=cut
-
-sub is_multicast_ipv4 {
-    shift if ref $_[0];
-    my $value = shift;
-
-    return unless defined($value);
-
-    my $ip = is_ipv4($value);
-    return unless defined $ip;
-
-    return unless Net::Netmask::findNetblock($ip, _mask_ipv4('multicast'));
-    return $ip;
-}
-
-=pod
-
 =item B<is_linklocal_ipv4> - is it a valid link-local ipv4 address
 
   is_linklocal_ipv4($value);
@@ -698,23 +634,6 @@ actually exists.
    be found.
 
 =back
-
-=cut
-
-sub is_linklocal_ipv4 {
-    shift if ref $_[0];
-    my $value = shift;
-
-    return unless defined($value);
-
-    my $ip = is_ipv4($value);
-    return unless defined $ip;
-
-    return unless Net::Netmask::findNetblock($ip, _mask_ipv4('linklocal'));
-    return $ip;
-}
-
-=pod
 
 =item B<is_unroutable_ipv4> - is it a valid unroutable ipv4 address
 
@@ -787,23 +706,6 @@ actually exists.
 
 =back
 
-=cut
-
-sub is_unroutable_ipv4 {
-    shift if ref $_[0];
-    my $value = shift;
-
-    return unless defined($value);
-
-    my $ip = is_ipv4($value);
-    return unless defined $ip;
-
-    return unless Net::Netmask::findNetblock($ip, _mask_ipv4('unroutable'));
-    return $ip;
-}
-
-=pod
-
 =item B<is_public_ipv4> - is it a valid public ipv4 address
 
   is_public_ipv4($value);
@@ -841,19 +743,6 @@ non- private/testnet/loopback ip.
 
 =cut
 
-sub is_public_ipv4 {
-    shift if ref $_[0];
-    my $value = shift;
-
-    return unless defined($value);
-
-    my $ip = is_ipv4($value);
-    return unless defined $ip;
-
-    return if Net::Netmask::findNetblock($ip, _mask_ipv4('nonpublic'));
-    return $ip;
-}
-
 {
     my %ipv4_networks = (
         loopback => [qw(127.0.0.0/8)],
@@ -880,24 +769,7 @@ sub is_public_ipv4 {
         ],
     );
 
-    $ipv4_networks{nonpublic} = [ map { @{$_} } values %ipv4_networks ];
-
-    my %mask;
-
-    sub _mask_ipv4 {
-        my $type = shift;
-        return $mask{$type} if $mask{$type};
-
-        my $mask = {};
-
-        my $ranges = $ipv4_networks{$type} || [$type];
-        foreach my $range (@{$ranges}) {
-            my $block = Net::Netmask->new($range);
-            $block->storeNetblock($mask);
-        }
-
-        return $mask{$type} = $mask;
-    }
+    _build_is_X_ip_subs(\%ipv4_networks, 4);
 }
 
 =pod
@@ -1086,48 +958,85 @@ actually exists.
 
 {
     my %ipv6_networks = (
-        loopback  => NetAddr::IP->new6('::1/128'),
-        private   => NetAddr::IP->new6('fc00::/7'),
-        multicast => NetAddr::IP->new6('ff00::/8'),
-        linklocal => NetAddr::IP->new6('fe80::/10'),
-        special   => NetAddr::IP->new6('2001:01f8::/29'),
+        loopback  => '::1/128',
+        private   => 'fc00::/7',
+        multicast => 'ff00::/8',
+        linklocal => 'fe80::/10',
+        special   => '2001:01f8::/29',
     );
 
-    for my $type (keys %ipv6_networks) {
-        my $net = $ipv6_networks{$type};
+    _build_is_X_ip_subs(\%ipv6_networks, 6);
+}
 
-        my $sub = sub {
-            shift if ref $_[0];
-            my $value = shift;
+sub _build_is_X_ip_subs {
+    my $networks  = shift;
+    my $ip_number = shift;
 
-            return unless defined($value);
+    my $is_ip_sub   = $ip_number == 4 ? 'is_ipv4' : 'is_ipv6';
+    my $netaddr_new = $ip_number == 4 ? 'new'     : 'new6';
 
-            my $ip = is_ipv6($value);
-            return unless defined $ip;
+    my @all_nets;
 
-            return $ip if $net->contains(NetAddr::IP->new6($ip));
-            return;
-        };
+    local $@;
+    for my $type (keys %{$networks}) {
+        my @nets
+            = map { NetAddr::IP->$netaddr_new($_) }
+            ref $networks->{$type}
+            ? @{ $networks->{$type} }
+            : $networks->{$type};
 
+        push @all_nets, @nets;
+
+        # We're using code gen rather than just making an anon sub outright so
+        # we don't have to pay the cost of derefencing the $is_ip_sub and the
+        # dynamic dispatch cost for $netaddr_new
+        my $sub = eval sprintf( <<'EOF', $is_ip_sub, $netaddr_new );
+sub {
+    shift if ref $_[0];
+    my $value = shift;
+
+    return unless defined $value;
+
+    my $ip = %s($value);
+    return unless defined $ip;
+
+    my $netaddr_ip = NetAddr::IP->%s($ip);
+    for my $net (@nets) {
+        return $ip if $net->contains($netaddr_ip);
+    }
+    return;
+}
+EOF
+        die $@ if $@;
+
+        my $sub_name = 'is_' . $type . '_ipv' . $ip_number;
         no strict 'refs';
-        *{ 'is_' . $type . '_ipv6' } = $sub;
+        *{$sub_name} = $sub;
     }
 
-    sub is_public_ipv6 {
-        shift if ref $_[0];
-        my $value = shift;
+    my $sub = eval sprintf( <<'EOF', $is_ip_sub, $netaddr_new );
+sub {
+    shift if ref $_[0];
+    my $value = shift;
 
-        return unless defined($value);
+    return unless defined($value);
 
-        my $ip = is_ipv6($value);
-        return unless defined $ip;
+    my $ip = %s($value);
+    return unless defined $ip;
 
-        for my $net (values %ipv6_networks) {
-            return if $net->contains(NetAddr::IP->new6($ip));
-        }
-
-        return $ip;
+    my $netaddr_ip = NetAddr::IP->%s($ip);
+    for my $net (@all_nets) {
+        return if $net->contains($netaddr_ip);
     }
+
+    return $ip;
+}
+EOF
+    die $@ if $@;
+
+    my $sub_name = 'is_public_ipv' . $ip_number;
+    no strict 'refs';
+    *{$sub_name} = $sub;
 }
 
 1;
