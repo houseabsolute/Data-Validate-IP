@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.15  Mon Feb  04 2013
+
     - If your installed version of Socket.pm provides an inet_pton subroutine
       we use that to do validation. This is about 5x faster for IPv4 addresses
       and 20 times faster for IPv6.
