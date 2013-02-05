@@ -1,4 +1,4 @@
-Revision history for Perl extension Data::Validate::IP.
+{{$NEXT}}
 
     - If your installed version of Socket.pm provides an inet_pton subroutine
       we use that to do validation. This is about 5x faster for IPv4 addresses
