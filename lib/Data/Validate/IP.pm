@@ -3,7 +3,7 @@ package Data::Validate::IP;
 use strict;
 use warnings;
 
-use NetAddr::IP;
+use NetAddr::IP 4;
 use Scalar::Util qw( blessed );
 
 require Exporter;
