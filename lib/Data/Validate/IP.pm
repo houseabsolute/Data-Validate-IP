@@ -78,18 +78,19 @@ our $VERSION = '0.14';
 
   use Data::Validate::IP qw(is_ipv4 is_ipv6);
 
-  if(is_ipv4($suspect)){
-        print "Looks like an ipv4 address";
-  } else {
-        print "Not an ipv4 address\n";
+  if (is_ipv4($suspect)) {
+      print "Looks like an ipv4 address";
+  }
+  else {
+      print "Not an ipv4 address\n";
   }
 
-  if(is_ipv6($suspect)){
-        print "Looks like an ipv6 address";
-  } else {
-        print "Not an ipv6 address\n";
+  if (is_ipv6($suspect)) {
+      print "Looks like an ipv6 address";
   }
-
+  else {
+      print "Not an ipv6 address\n";
+  }
 
   # or as an object
   my $v = Data::Validate::IP->new();
