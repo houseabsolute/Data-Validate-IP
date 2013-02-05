@@ -996,7 +996,7 @@ actually exists.
 
 =back
 
-THe whole block of special IPv6 addresses can be written simple as 2001::/23.
+The whole block of special IPv6 addresses can be written simple as 2001::/23.
 
 =cut
 
