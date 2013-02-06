@@ -15,7 +15,12 @@ BEGIN {
         && eval {
         require Socket;
         Socket->import(qw( AF_INET AF_INET6 inet_pton ));
-        1;
+        # On some platforms, Socket.pm exports an inet_pton that just dies
+        # when it is called. On others, inet_pton accepts various forms of
+        # invalid input.
+        defined &Socket::inet_pton
+            && !defined inet_pton(Socket::AF_INET(),  '016.17.184.1')
+            && !defined inet_pton(Socket::AF_INET6(), '2067::1:');
         };
 
     if ($HAS_SOCKET) {

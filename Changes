@@ -1,7 +1,9 @@
 {{$NEXT}}
+    - Made the check for Socket.pm stricter. On some platforms it exports an
+      inet_pton() that just dies when called. On other platforms it accepts
+      invalid input like '016.17.184.1' or '2067::1:'.
 
 0.15  Mon Feb  04 2013
-
     - If your installed version of Socket.pm provides an inet_pton subroutine
       we use that to do validation. This is about 5x faster for IPv4 addresses
       and 20 times faster for IPv6.
