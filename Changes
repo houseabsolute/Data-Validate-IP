@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.16  Wed Feb  06 2013
     - Made the check for Socket.pm stricter. On some platforms it exports an
       inet_pton() that just dies when called. On other platforms it accepts
       invalid input like '016.17.184.1' or '2067::1:'.
