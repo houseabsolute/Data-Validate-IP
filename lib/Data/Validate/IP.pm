@@ -11,6 +11,7 @@ require Exporter;
 our $HAS_SOCKET;
 
 BEGIN {
+    local $@;
     $HAS_SOCKET = (!$ENV{DVI_NO_SOCKET})
         && eval {
         require Socket;
