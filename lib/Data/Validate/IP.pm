@@ -3,6 +3,8 @@ package Data::Validate::IP;
 use strict;
 use warnings;
 
+use 5.008;
+
 use NetAddr::IP 4;
 use Scalar::Util qw( blessed );
 
