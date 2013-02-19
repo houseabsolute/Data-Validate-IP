@@ -1,4 +1,7 @@
 {{$NEXT}}
+    - Previous releases broke is_innet_ipv4 for many network formats. This
+      support has been restored, but only the "a.b.c.d/nn" CIDR form will be
+      documented going forward.
 
 0.16  Wed Feb  06 2013
     - Made the check for Socket.pm stricter. On some platforms it exports an
