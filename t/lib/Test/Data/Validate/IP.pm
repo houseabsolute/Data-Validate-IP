@@ -134,29 +134,55 @@ sub _ipv4_innet_tests {
         [ '0.0.0.0',      'default',         1 ],
         [ '1.2.3.4',      'default',         1 ],
         [ '216.240.32.1', '216.240.32.1',    1 ],
-        [ '216.240.32.1', '216.240.32/24',   1 ],
-        [ '216.240.32.1', '216.240/16',      1 ],
-        # These are accepted for backwards compatibility with the
-        # time when we used Net::Netmask.
-        [ '216.240.32.1', '216.240.32.0:255.255.255.0', 1 ],
-        [ '216.240.32.1', '216.240.32.0-255.255.255.0', 1 ],
-        [ '216.240.32.1', '216.240.32',                 1 ],
-        [ '216.240.32.1', '216.240',                    1 ],
-        [ '216.240.32.1', '216',                        1 ],
-        [ '216.240.32.1', '216.240.32.0#0.0.31.255',    1 ],
     );
 
-    for my $triplet (@tests) {
-        my ($ip, $network, $is_member) = @{$triplet};
+    # These are accepted for backwards compatibility with the time when we
+    # used Net::Netmask.
+    my @deprecated = (
+        [ '216.240.32.1', '216.240.32/24',              1, 1 ],
+        [ '216.240.32.1', '216.240/16',                 1, 1 ],
+        [ '216.240.32.1', '216.240.32.0:255.255.255.0', 1, 1 ],
+        [ '216.240.32.1', '216.240.32.0-255.255.255.0', 1, 1 ],
+        [ '216.240.32.1', '216.240.32',                 1, 1 ],
+        [ '216.240.32.1', '216.240',                    1, 1 ],
+        [ '216.240.32.1', '216',                        1, 1 ],
+        [ '216.240.32.1', '216.240.32.0#0.0.31.255',    1, 1 ],
+    );
+
+    my @warnings;
+    for my $triplet (@tests, @deprecated) {
+        my ($ip, $network, $is_member, $is_deprecated) = @{$triplet};
 
         my $expect = $is_member ? $ip : undef;
 
         my $expect_string = $expect || 'undef';
+
+        local $SIG{__WARN__} = sub { push @warnings, @_ }
+            if $is_deprecated;
+
         is(
             is_innet_ipv4($ip, $network), $expect,
             "is_innet_ipv4($ip, $network) returns $expect_string"
         );
     }
+
+    is(
+        scalar @warnings,
+        1,
+        'got one warning from is_innet_ipv4'
+    );
+
+    like(
+        $warnings[0],
+        qr/\QUse of non-CIDR notation for networks with is_innet_ipv4() is deprecated/,
+        'got expected deprecation warning'
+    );
+
+    like(
+        $warnings[0],
+        qr/at line \d+ of Test::Data::Validate::IP in sub Test::Data::Validate::IP::_ipv4_innet_tests/,
+        'deprecation warning identifies caller'
+    );
 }
 
 sub _ipv6_basic_tests {

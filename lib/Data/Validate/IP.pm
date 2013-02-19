@@ -409,6 +409,7 @@ sub is_innet_ipv4 {
         || $network =~ /^$ip_re$/
         || $network =~ m{^$ip_re/\d\d?$}) {
 
+        my $orig = $network;
         if ($network =~ /^($ip_re)[:\-]($ip_re)$/) {
             my ($net, $netmask) = ($1, $2);
 
@@ -439,6 +440,12 @@ sub is_innet_ipv4 {
                 $network .= '.0' x (4 - $octets);
                 $network .= '/' . $octets * 8;
             }
+        }
+
+        if ($orig ne $network) {
+            _deprecation_warn(
+                'Use of non-CIDR notation for networks with is_innet_ipv4() is deprecated'
+            );
         }
     }
 
@@ -529,6 +536,21 @@ sub is_innet_ipv4 {
 
     sub _hostmask_to_bits {
         return $hostmasks{ $_[0] };
+    }
+}
+
+{
+    my %warned_at;
+
+    sub _deprecation_warn {
+        my $warning = shift;
+        my @caller = caller(2);
+
+        my $caller_info = "at line $caller[2] of $caller[0] in sub $caller[3]";
+
+        return if $warned_at{$warning}{$caller_info}++;
+
+        warn "$warning $caller_info\n";
     }
 }
 
