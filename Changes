@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.17  Tue Feb  19 2013
     - Previous releases broke is_innet_ipv4 for many network formats. This
       support has been restored, but only the "a.b.c.d/nn" CIDR form will be
       documented going forward. All other forms are deprecated, and support
