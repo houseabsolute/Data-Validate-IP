@@ -76,10 +76,6 @@ our @EXPORT = qw(
     is_special_ipv6
 );
 
-our $VERSION = '0.14';
-
-#Global, we store this only once
-
 # ABSTRACT: ipv4 and ipv6 validation methods
 
 =head1 SYNOPSIS
