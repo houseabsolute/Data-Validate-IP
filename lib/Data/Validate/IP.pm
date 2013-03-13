@@ -1246,6 +1246,13 @@ B<[RFC 2460] [RFC 4193] [RFC 4291] [RFC 6434]>
 
 IPv6 Support is new, please test it thoroughly and report any bugs.
 
+=head1 BUGS
+
+Please report any bugs or feature requests to
+C<bug-data-validate-ip@rt.cpan.org>, or through the web interface at
+L<http://rt.cpan.org>. I will be notified, and then you'll automatically be
+notified of progress on your bug as I make changes.
+
 =head1 ACKNOWLEDGEMENTS
 
 Thanks to Richard Sonnen <F<sonnen@richardsonnen.com>> for writing the Data::Validate module.
