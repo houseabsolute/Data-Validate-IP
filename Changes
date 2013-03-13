@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.19  Wed Mar  13 2013
     - Fix a deprecation warning that showed up with Perl 5.10.1, but not with
       newer Perls. Reported by Iosif Fettich.
 
