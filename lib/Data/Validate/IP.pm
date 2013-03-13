@@ -1255,8 +1255,10 @@ notified of progress on your bug as I make changes.
 
 =head1 ACKNOWLEDGEMENTS
 
-Thanks to Richard Sonnen <F<sonnen@richardsonnen.com>> for writing the Data::Validate module.
+Thanks to Richard Sonnen <F<sonnen@richardsonnen.com>> for writing the
+Data::Validate module.
 
-Thanks to Matt Dainty <F<matt@bodgit-n-scarper.com>> for adding the is_multicast_ipv4 and is_linklocal_ipv4 code.
+Thanks to Matt Dainty <F<matt@bodgit-n-scarper.com>> for adding the
+is_multicast_ipv4 and is_linklocal_ipv4 code.
 
 =cut
