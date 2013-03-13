@@ -425,13 +425,16 @@ sub is_innet_ipv4 {
         elsif ($network =~ m{^($partial_ip_re)/(\d\d?)$}) {
             my ($net, $bits) = ($1, $2);
 
-            my $octets = scalar split /\./, $net;
+            # This is a hack to avoid a deprecation warning (Use of implicit
+            # split to @_ is deprecated) that shows up on 5.10.1 but not on
+            # newer Perls.
+            my $octets = scalar(my @tmp = split /\./, $net);
             $network = $net;
             $network .= '.0' x (4 - $octets);
             $network .= "/$bits";
         }
         elsif ($network =~ /^$partial_ip_re$/) {
-            my $octets = scalar split /\./, $network;
+            my $octets = scalar(my @tmp = split /\./, $network);
             if ($octets < 4) {
                 $network .= '.0' x (4 - $octets);
                 $network .= '/' . $octets * 8;
