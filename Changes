@@ -1,4 +1,6 @@
 {{$NEXT}}
+    - Fix a deprecation warning that showed up with Perl 5.10.1, but not with
+      newer Perls. Reported by Iosif Fettich.
 
 0.18  Tue Feb  19 2013
     - Versions 0.15 - 0.17 still had $VERSION set to 0.14. Reported by Greg
