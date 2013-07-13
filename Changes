@@ -1,4 +1,6 @@
 {{$NEXT}}
+    - Add docs for the is_public_ipv6() sub that was added in 0.15. Reported
+      by Greg Oschwald.
 
 0.19  Wed Mar  13 2013
     - Fix a deprecation warning that showed up with Perl 5.10.1, but not with

@@ -1118,6 +1118,52 @@ The whole block of special IPv6 addresses can be written simple as 2001::/23.
 
 =cut
 
+=pod
+
+=item B<is_public_ipv6> - is it a valid public ipv6 address
+
+  is_public_ipv6($value);
+  or
+  $obj->is_public_ipv6($value);
+
+=over 4
+
+=item I<Description>
+
+Returns the untainted ip address if the test value appears to be a well-formed
+public ip address.
+
+=item I<Arguments>
+
+=over 4
+
+=item $value
+
+The potential ip to test.
+
+=back
+
+=item I<Returns>
+
+Returns the untainted ip on success, undef on failure.
+
+=item I<Notes, Exceptions, & Bugs>
+
+The function does not make any attempt to check whether an ip
+actually exists.
+
+=item I<From RFC 4193>
+
+   The default behavior of exterior routing protocol sessions between
+   administrative routing regions must be to ignore receipt of and not
+   advertise prefixes in the FC00::/7 block.  A network operator may
+   specifically configure prefixes longer than FC00::/7 for inter-site
+   communication.
+
+=back
+
+=cut
+
 {
     my %ipv6_networks = (
         loopback  => '::1/128',
