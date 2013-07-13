@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.20  Sat Jul  13 2013
     - Add docs for the is_public_ipv6() sub that was added in 0.15. Reported
       by Greg Oschwald.
 
