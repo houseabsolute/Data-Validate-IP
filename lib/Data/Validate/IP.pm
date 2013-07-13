@@ -1265,12 +1265,6 @@ IPv6
 
 B<[RFC 2460] [RFC 4193] [RFC 4291] [RFC 6434]>
 
-=over 4
-
-=item  L<Data::Validate(3)>
-
-=back
-
 =head1 IPv6
 
 IPv6 Support is new, please test it thoroughly and report any bugs.
