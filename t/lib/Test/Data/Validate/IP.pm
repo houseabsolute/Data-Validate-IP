@@ -18,6 +18,7 @@ my %ipv4_types = (
     loopback   => [qw(127.0.0.1)],
     testnet    => [qw(192.0.2.9 198.51.100.33 203.0.113.44)],
     multicast  => [qw(224.0.0.1)],
+    anycast    => [qw(192.88.99.45)],
     linklocal  => [qw(169.254.0.1)],
     unroutable => [
         qw(

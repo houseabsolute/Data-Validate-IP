@@ -3,6 +3,9 @@
       the unroutable list, rather than the testnet list. This has been
       fixed. Note that if you've just been using is_public_ipv4 in your code,
       there are no changes in the results.
+    - Added the 6to4 anycast network - 192.88.99.0/24. Addresses in this
+      network are not considered public and there is now a new
+      is_anycast_ipv4() subroutine exported.
 
 0.20  Sat Jul  13 2013
     - Add docs for the is_public_ipv6() sub that was added in 0.15. Reported

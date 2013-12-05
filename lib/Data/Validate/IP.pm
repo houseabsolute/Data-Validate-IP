@@ -712,6 +712,47 @@ actually exists.
 
 =back
 
+=item B<is_anycast_ipv4> - is it a valid 6to4 anycast ipv4 address
+
+  is_anycast_ipv4($value);
+  or
+  $obj->is_anycast_ipv4($value);
+
+=over 4
+
+=item I<Description>
+
+Returns the untainted ip address if the test value appears to be a well-formed
+anycast ip address.
+
+=item I<Arguments>
+
+=over 4
+
+=item $value
+
+The potential ip to test.
+
+=back
+
+=item I<Returns>
+
+Returns the untainted ip on success, undef on failure.
+
+=item I<Notes, Exceptions, & Bugs>
+
+The function does not make any attempt to check whether an ip
+actually exists.
+
+=item I<From RFC 3068>
+
+   An IPv4 address prefix used to advertise an IPv4  route to an
+   available 6to4 Relay Router, as defined in this memo.
+
+   The value of this prefix is 192.88.99.0/24
+
+=back
+
 =item B<is_linklocal_ipv4> - is it a valid link-local ipv4 address
 
   is_linklocal_ipv4($value);
@@ -864,7 +905,7 @@ non- private/testnet/loopback ip.
                 203.0.113.0/24
                 )
         ],
-        anycast  => [qw(192.88.99.0/24)],
+        anycast    => [qw(192.88.99.0/24)],
         multicast  => [qw(224.0.0.0/4)],
         linklocal  => [qw(169.254.0.0/16)],
         unroutable => [
