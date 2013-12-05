@@ -177,11 +177,13 @@ sub is_innet_ipv4 {
 
     # Backwards compatibility hacks to make it accept things that Net::Netmask
     # accepts.
-    unless ((blessed $network && $network->isa('NetAddr::IP'))
-        || $network eq 'default'
+    if (   $network eq 'default'
         || $network =~ /^$ip_re$/
         || $network =~ m{^$ip_re/\d\d?$}) {
 
+        $network = NetAddr::IP->new($network) or return;
+    }
+    elsif (!(blessed $network && $network->isa('NetAddr::IP'))) {
         my $orig = $network;
         if ($network =~ /^($ip_re)[:\-]($ip_re)$/) {
             my ($net, $netmask) = ($1, $2);
