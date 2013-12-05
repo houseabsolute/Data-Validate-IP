@@ -61,6 +61,13 @@ my %ipv6_types = (
             ::ffff:ffff:ffff
             )
     ],
+    discard => [
+        qw(
+            100::
+            100::1234
+            100:0000:0000:0000:ffff:ffff:ffff:ffff
+            )
+    ],
     multicast => [
         qw(
             ff00::
