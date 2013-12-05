@@ -41,22 +41,7 @@ our @ISA = qw(Exporter);
 our @EXPORT = qw(
     is_ipv4
     is_ipv6
-
     is_innet_ipv4
-    is_private_ipv4
-    is_loopback_ipv4
-    is_testnet_ipv4
-    is_public_ipv4
-    is_multicast_ipv4
-    is_linklocal_ipv4
-    is_unroutable_ipv4
-
-    is_private_ipv6
-    is_loopback_ipv6
-    is_public_ipv6
-    is_multicast_ipv6
-    is_linklocal_ipv6
-    is_special_ipv6
 );
 
 # ABSTRACT: ipv4 and ipv6 validation methods
@@ -1225,6 +1210,7 @@ EOF
         my $sub_name = 'is_' . $type . '_ipv' . $ip_number;
         no strict 'refs';
         *{$sub_name} = $sub;
+        push @EXPORT, $sub_name;
     }
 
     my $sub = eval sprintf( <<'EOF', $is_ip_sub, $netaddr_new );
@@ -1250,6 +1236,7 @@ EOF
     my $sub_name = 'is_public_ipv' . $ip_number;
     no strict 'refs';
     *{$sub_name} = $sub;
+    push @EXPORT, $sub_name;
 }
 
 1;
