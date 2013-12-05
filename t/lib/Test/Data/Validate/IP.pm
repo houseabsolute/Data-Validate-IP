@@ -242,7 +242,7 @@ sub _type_tests {
                 "->$is_sub_name($ip) returns $ip"
             );
 
-            for my $other (grep { $_ ne $type } @types) {
+            for my $other (sort grep { $_ ne $type } @types) {
                 my ($isnt_sub_name, $isnt_sub)
                     = _sub_for_type($other, $ip_number);
 
