@@ -69,8 +69,8 @@ my %ipv6_types = (
             )
     ],
     special => [
-        [ '2001::'     => [qw( teredo orchid )] ],
-        [ '2001::1234' => [qw( teredo orchid )] ],
+        [ '2001::'     => [qw( teredo )] ],
+        [ '2001::1234' => [qw( teredo )] ],
         qw(
             2001:1ff:ffff:ffff:ffff:ffff:ffff:ffff
             )
