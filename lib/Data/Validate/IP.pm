@@ -534,7 +534,7 @@ form evaluates to false in Perl.
 Note that none of these functions actually attempt to test whether the given
 IP address is routable from your device; they are purely semantic checks.
 
-=head2 is_ipv4($ip)> and is_ipv6($ip)
+=head2 is_ipv4($ip) and is_ipv6($ip)
 
 These functions simply check whether the address is a valid IPv4 or IPv6 address.
 
