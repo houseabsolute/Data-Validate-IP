@@ -75,6 +75,13 @@ my %ipv6_types = (
             2001:1ff:ffff:ffff:ffff:ffff:ffff:ffff
             )
     ],
+    teredo => [
+        qw(
+            2001::
+            2001::1234
+            2001:0:ffff:ffff:ffff:ffff:ffff:ffff
+            )
+    ],
 );
 
 sub run_tests {
@@ -243,6 +250,14 @@ sub _type_tests {
             );
 
             for my $other (sort grep { $_ ne $type } @types) {
+                # TEREDO is a subset of special
+                next if $type eq 'teredo' && $other eq 'special';
+                # The first two special IPs we test _are_ TEREDO IPs as well.
+                next
+                    if $type eq 'special'
+                    && $other eq 'teredo'
+                    && grep { $ip eq $_ } @{ $types->{$type} }[ 0, 1 ];
+
                 my ($isnt_sub_name, $isnt_sub)
                     = _sub_for_type($other, $ip_number);
 

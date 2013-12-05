@@ -1145,7 +1145,52 @@ actually exists.
 
 =back
 
-The whole block of special IPv6 addresses can be written simple as 2001::/23.
+The whole block of special IPv6 addresses can be written simply as 2001::/23.
+
+=cut
+
+=item B<is_teredo_ipv6> - is it a valid TEREDO ipv6 address
+
+  is_teredo_ipv6($value);
+  or
+  $obj->is_teredo_ipv6($value);
+
+=over 4
+
+=item I<Description>
+
+Returns the untainted ip address if the test value appears to be a well-formed
+TEREDO purpose ip address.
+
+=item I<Arguments>
+
+=over 4
+
+=item $value
+
+The potential ip to test.
+
+=back
+
+=item I<Returns>
+
+Returns the untainted ip on success, undef on failure.
+
+=item I<Notes, Exceptions, & Bugs>
+
+The function does not make any attempt to check whether an ip
+actually exists.
+
+=item
+
+Note that the TEREDO block is a subset of the larger special block at
+2001:/23.
+
+=item I<From RFC 4380>
+
+   An IPv6 addressing prefix whose value is 2001:0000:/32.
+
+=back
 
 =cut
 
@@ -1202,6 +1247,7 @@ actually exists.
         multicast => 'ff00::/8',
         linklocal => 'fe80::/10',
         special   => '2001::/23',
+        teredo    => '2001::/32',
     );
 
     _build_is_X_ip_subs(\%ipv6_networks, 6);
@@ -1224,7 +1270,11 @@ sub _build_is_X_ip_subs {
             ? @{ $networks->{$type} }
             : $networks->{$type};
 
-        push @all_nets, @nets;
+        # TEREDO is a subset of the special block so there's no point in
+        # checking for it in is_public_ipv6.
+        unless ($type eq 'teredo') {
+            push @all_nets, @nets;
+        }
 
         # We're using code gen rather than just making an anon sub outright so
         # we don't have to pay the cost of derefencing the $is_ip_sub and the
