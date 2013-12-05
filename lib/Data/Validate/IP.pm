@@ -532,11 +532,11 @@ form evaluates to false in Perl.
 Note that none of these functoins actually attempt to test whether the given
 IP address is routable from your device; they are purely semantic checks.
 
-=head2 C<is_ipv4($ip)> and C<is_ipv6($ip)>
+=head2 is_ipv4($ip)> and is_ipv6($ip)
 
 These functions simply check whether the address is a valid IPv4 or IPv6 address.
 
-=head2 C<is_innet_ipv4($ip, $network)>
+=head2 is_innet_ipv4($ip, $network)
 
 This subroutine checks whether the address belongs to the given IPv4
 network. The C<$network> argument can either be a string in CIDR notation like
@@ -545,7 +545,7 @@ network. The C<$network> argument can either be a string in CIDR notation like
 This subroutine used to accept many more forms of network specifications
 (anything L<Net::Netmask> accepts) but this has been deprecated.
 
-=head2 C<is_unroutable_ipv4($ip)>
+=head2 is_unroutable_ipv4($ip)
 
 This subroutine checks whether the address belongs to any of several special
 use IPv4 networks - C<0.0.0.0/8>, C<100.64.0.0/10>, C<192.0.0.0/29>,
@@ -557,66 +557,66 @@ C<198.18.0.0/15>, C<240.0.0.0/4> - as defined by L<RFC
 Arguably, these should be broken down further but this subroutine will always
 exist for backwards compatibility.
 
-=head2 C<is_private_ipv4($ip)>
+=head2 is_private_ipv4($ip)
 
 This subroutine checks whether the address belongs to any of the private IPv4
 networks - C<10.0.0.0/8>, C<172.16.0.0/12>, C<192.168.0.0/16> - as defined by
 L<RFC 5735|http://tools.ietf.org/html/rfc5735>.
 
-=head2 C<is_loopback_ipv4($ip)>
+=head2 is_loopback_ipv4($ip)
 
 This subroutine checks whether the address belongs to the IPv4 loopback
 network - C<127.0.0.0/8> - as defined by L<RFC
 5735|http://tools.ietf.org/html/rfc5735>.
 
-=head2 C<is_linklocal_ipv4($ip)>
+=head2 is_linklocal_ipv4($ip)
 
 This subroutine checks whether the address belongs to the IPv4 link local
-network - C<169.254.0.0/16 - as defined by L<RFC
+network - C<169.254.0.0/16> - as defined by L<RFC
 5735|http://tools.ietf.org/html/rfc5735>.
 
-=head2 C<is_testnet_ipv4($ip)>
+=head2 is_testnet_ipv4($ip)
 
 This subroutine checks whether the address belongs to any of the IPv4 TEST-NET
 networks for use in documentation and example code - C<192.0.2.0/24>,
 C<198.51.100.0/24>, and C<203.0.113.0/24> - as defined by L<RFC
 5735|http://tools.ietf.org/html/rfc5735>.
 
-=head2 C<is_anycast_ipv4($ip)>
+=head2 is_anycast_ipv4($ip)
 
 This subroutine checks whether the address belongs to the 6to4 relay anycast
 network - C<192.88.99.0/24> - as defined by L<RFC
 5735|http://tools.ietf.org/html/rfc5735>.
 
-=head2 C<is_multicast_ipv4($ip)>
+=head2 is_multicast_ipv4($ip)
 
 This subroutine checks whether the address belongs to the IPv4 multicast
 network - C<224.0.0.0/4> - as defined by L<RFC
 5735|http://tools.ietf.org/html/rfc5735>.
 
-=head2 C<is_loopback_ipv6($ip)>
+=head2 is_loopback_ipv6($ip)
 
 This subroutine checks whether the address is the IPv6 loopback address -
 C<::1/128> - as defined by L<RFC 4291|http://tools.ietf.org/html/rfc4291>.
 
-=head2 C<is_ipv4_mapped_ipv6($ip)>
+=head2 is_ipv4_mapped_ipv6($ip)
 
 This subroutine checks whether the address belongs to the IPv6 IPv4-mapped
 address network - C<::ffff:0:0/96> - as defined by L<RFC
 4291|http://tools.ietf.org/html/rfc4291>.
 
-=head2 C<is_discard_ipv6($ip)>
+=head2 is_discard_ipv6($ip)
 
 This subroutine checks whether the address belongs to the IPv6 discard prefix
 network - C<100::/64> - as defined by L<RFC
 6666|http://tools.ietf.org/html/rfc6666>.
 
-=head2 C<is_special_ipv6($ip)>
+=head2 is_special_ipv6($ip)
 
 This subroutine checks whether the address belongs to the IPv6 special network
 - C<2001::/23> - as defined by L<RFC 2928|http://tools.ietf.org/html/rfc2928>.
 
-=head2 C<is_teredo_ipv6($ip)>
+=head2 is_teredo_ipv6($ip)
 
 This subroutine checks whether the address belongs to the IPv6 TEREDO network
 - C<2001::/32> - as defined by L<RFC 4380|http://tools.ietf.org/html/rfc4380>.
@@ -624,7 +624,7 @@ This subroutine checks whether the address belongs to the IPv6 TEREDO network
 Note that this network is a subnet of the larger special network at
 C<2001::/23>.
 
-=head2 C<is_orchid_ipv6($ip)>
+=head2 is_orchid_ipv6($ip)
 
 This subroutine checks whether the address belongs to the IPv6 ORCHID network
 - C<2001::/32> - as defined by L<RFC 4380|http://tools.ietf.org/html/rfc4380>.
@@ -636,30 +636,30 @@ This network is currently scheduled to be returned to the special pool in
 March of 2014 unless the IETF extends its use. If that happens this subroutine
 will continue to exist but will always return false.
 
-=head2 C<is_documentation_ipv6($ip)>
+=head2 is_documentation_ipv6($ip)
 
 This subroutine checks whether the address belongs to the IPv6 documentation
 network - C<2001:DB8::/32> - as defined by L<RFC
 3849|http://tools.ietf.org/html/rfc3849>.
 
-=head2 C<is_private_ipv6($ip)>
+=head2 is_private_ipv6($ip)
 
 This subroutine checks whether the address belongs to the IPv6 private network
 - C<FC00::/7> - as defined by L<RFC 4193|http://tools.ietf.org/html/rfc4193>.
 
-=head2 C<is_linklocal_ipv6($ip)>
+=head2 is_linklocal_ipv6($ip)
 
 This subroutine checks whether the address belongs to the IPv6 link-local
 unicast network - C<FE80::/10> - as defined by L<RFC
 4291|http://tools.ietf.org/html/rfc4291>.
 
-=head2 C<is_multicast_ipv6($ip)>
+=head2 is_multicast_ipv6($ip)
 
 This subroutine checks whether the address belongs to the IPv6 multicast
 network - C<FF00::/8> - as defined by L<RFC
 4291|http://tools.ietf.org/html/rfc4291>.
 
-=head2 C<is_public_ipv4($ip)> and C<is_public_ipv6($ip)>
+=head2 is_public_ipv4($ip) and is_public_ipv6($ip)
 
 These subroutines check whether the given IP address belongs to any of the
 special case networks defined previously. Note that this is B<not> simply the
