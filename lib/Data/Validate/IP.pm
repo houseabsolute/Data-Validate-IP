@@ -531,7 +531,7 @@ fails. In theory, this means that you should always check for a defined status
 explicitly but in practice there are no valid IP addresses where the string
 form evaluates to false in Perl.
 
-Note that none of these functoins actually attempt to test whether the given
+Note that none of these functions actually attempt to test whether the given
 IP address is routable from your device; they are purely semantic checks.
 
 =head2 is_ipv4($ip)> and is_ipv6($ip)
