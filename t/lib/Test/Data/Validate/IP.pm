@@ -89,6 +89,13 @@ my %ipv6_types = (
             2001:001F:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF
             )
     ],
+    documentation => [
+        qw(
+            2001:db8::
+            2001:db8::1234
+            2001:0db8:ffff:ffff:ffff:ffff:ffff:ffff
+            )
+    ],
 );
 
 sub run_tests {

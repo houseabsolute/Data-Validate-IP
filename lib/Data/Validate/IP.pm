@@ -1164,7 +1164,7 @@ The whole block of special IPv6 addresses can be written simply as 2001::/23.
 =item I<Description>
 
 Returns the untainted ip address if the test value appears to be a well-formed
-TEREDO purpose ip address.
+TEREDO ip address.
 
 =item I<Arguments>
 
@@ -1205,7 +1205,7 @@ Note that the TEREDO block is a subset of the larger special block at
 =item I<Description>
 
 Returns the untainted ip address if the test value appears to be a well-formed
-ORCHID purpose ip address.
+ORCHID ip address.
 
 =item I<Arguments>
 
@@ -1237,6 +1237,44 @@ this module will continue to provide this sub but it will always return false.
 
     Prefix          : A constant 28-bit-long bitstring value
                       (2001:10::/28).
+
+=back
+
+=item B<is_documentation_ipv6> - is it a valid ipv6 address for documentation
+
+  is_documentation_ipv6($value);
+  or
+  $obj->is_documentation_ipv6($value);
+
+=over 4
+
+=item I<Description>
+
+Returns the untainted ip address if the test value appears to be a well-formed
+documentation ip address.
+
+=item I<Arguments>
+
+=over 4
+
+=item $value
+
+The potential ip to test.
+
+=back
+
+=item I<Returns>
+
+Returns the untainted ip on success, undef on failure.
+
+=item I<Notes, Exceptions, & Bugs>
+
+The function does not make any attempt to check whether an ip
+actually exists.
+
+=item I<From RFC 3849>
+
+    The prefix allocated for documentation purposes is 2001:DB8::/32
 
 =back
 
@@ -1299,6 +1337,7 @@ actually exists.
             networks  => '2001:10::/28',
             subnet_of => 'special',
         },
+        documentation => { networks => '2001:db8::/32' },
     );
 
     _build_is_X_ip_subs(\%ipv6_networks, 6);
