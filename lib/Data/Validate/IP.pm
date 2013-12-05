@@ -518,7 +518,7 @@ __END__
 =head1 DESCRIPTION
 
 This module provides a number IP address validation subs that both validate
-and untaint their input. This includes both basic validate (C<is_ipv4()> and
+and untaint their input. This includes both basic validation (C<is_ipv4()> and
 C<is_ipv6()>) and special cases like checking whether an address belongs to a
 specific network or whether an address is public or private (reserved).
 
@@ -670,8 +670,8 @@ networks are a subset of all the special case networks.
 
 =head1 OBJECT-ORIENTED INTERFACE
 
-This module can also be used as a class. You can call
-C<<Data::Validate::IP->new()>> to get an object and then call any of the
+This module can also be used as a class. You can call C<<
+Data::Validate::IP->new() >> to get an object and then call any of the
 validation subroutines as methods on that object. This is somewhat pointless
 since the object will never contain any state but this interface is kept for
 backwards compatibility.
