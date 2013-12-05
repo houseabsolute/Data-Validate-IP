@@ -69,9 +69,9 @@ my %ipv6_types = (
             )
     ],
     special => [
+        [ '2001::'     => [qw( teredo orchid )] ],
+        [ '2001::1234' => [qw( teredo orchid )] ],
         qw(
-            2001::
-            2001::1234
             2001:1ff:ffff:ffff:ffff:ffff:ffff:ffff
             )
     ],
@@ -80,6 +80,13 @@ my %ipv6_types = (
             2001::
             2001::1234
             2001:0:ffff:ffff:ffff:ffff:ffff:ffff
+            )
+    ],
+    orchid => [
+        qw(
+            2001:10::
+            2001:10::1234
+            2001:001F:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF
             )
     ],
 );
@@ -240,7 +247,9 @@ sub _type_tests {
     my @types = sort keys %{$types};
 
     for my $type (@types) {
-        for my $ip (@{ $types->{$type} }) {
+        for my $test (@{ $types->{$type} }) {
+            my ($ip, $is_also) = ref $test ? @{$test} : ($test, []);
+
             my ($is_sub_name, $is_sub) = _sub_for_type($type, $ip_number);
 
             is($is_sub->($ip), $ip, "$is_sub_name($ip) returns $ip");
@@ -250,25 +259,32 @@ sub _type_tests {
             );
 
             for my $other (sort grep { $_ ne $type } @types) {
-                # TEREDO is a subset of special
-                next if $type eq 'teredo' && $other eq 'special';
-                # The first two special IPs we test _are_ TEREDO IPs as well.
-                next
-                    if $type eq 'special'
-                    && $other eq 'teredo'
-                    && grep { $ip eq $_ } @{ $types->{$type} }[ 0, 1 ];
+                next if grep { $_ eq $other } @{$is_also};
 
-                my ($isnt_sub_name, $isnt_sub)
+                my ($other_sub_name, $other_sub)
                     = _sub_for_type($other, $ip_number);
 
-                is(
-                    $isnt_sub->($ip), undef,
-                    "$isnt_sub_name($ip) returns undef"
-                );
-                is(
-                    $object->$isnt_sub_name($ip), undef,
-                    "->$isnt_sub_name($ip) returns undef"
-                );
+                if (Data::Validate::IP::_network_is_subnet_of($type, $other))
+                {
+                    is(
+                        $other_sub->($ip), $ip,
+                        "$other_sub_name($ip) returns $ip"
+                    );
+                    is(
+                        $object->$other_sub_name($ip), $ip,
+                        "->$other_sub_name($ip) returns $ip"
+                    );
+                }
+                else {
+                    is(
+                        $other_sub->($ip), undef,
+                        "$other_sub_name($ip) returns undef"
+                    );
+                    is(
+                        $object->$other_sub_name($ip), undef,
+                        "->$other_sub_name($ip) returns undef"
+                    );
+                }
             }
         }
     }

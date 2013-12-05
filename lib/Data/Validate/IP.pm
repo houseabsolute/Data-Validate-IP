@@ -890,33 +890,39 @@ non- private/testnet/loopback ip.
 
 {
     my %ipv4_networks = (
-        loopback => [qw(127.0.0.0/8)],
-        private  => [
-            qw(
-                10.0.0.0/8
-                172.16.0.0/12
-                192.168.0.0/16
-                )
-        ],
-        testnet => [
-            qw(
-                192.0.2.0/24
-                198.51.100.0/24
-                203.0.113.0/24
-                )
-        ],
-        anycast    => [qw(192.88.99.0/24)],
-        multicast  => [qw(224.0.0.0/4)],
-        linklocal  => [qw(169.254.0.0/16)],
-        unroutable => [
-            qw(
-                0.0.0.0/8
-                100.64.0.0/10
-                192.0.0.0/29
-                198.18.0.0/15
-                240.0.0.0/4
-                )
-        ],
+        loopback => { networks => '127.0.0.0/8' },
+        private  => {
+            networks => [
+                qw(
+                    10.0.0.0/8
+                    172.16.0.0/12
+                    192.168.0.0/16
+                    )
+            ],
+        },
+        testnet => {
+            networks => [
+                qw(
+                    192.0.2.0/24
+                    198.51.100.0/24
+                    203.0.113.0/24
+                    )
+            ],
+        },
+        anycast    => { networks => '192.88.99.0/24' },
+        multicast  => { networks => '224.0.0.0/4' },
+        linklocal  => { networks => '169.254.0.0/16' },
+        unroutable => {
+            networks => [
+                qw(
+                    0.0.0.0/8
+                    100.64.0.0/10
+                    192.0.0.0/29
+                    198.18.0.0/15
+                    240.0.0.0/4
+                    )
+            ],
+        },
     );
 
     _build_is_X_ip_subs(\%ipv4_networks, 4);
@@ -1194,6 +1200,58 @@ Note that the TEREDO block is a subset of the larger special block at
 
 =cut
 
+=item B<is_orchid_ipv6> - is it a valid ORCHID ipv6 address
+
+  is_orchid_ipv6($value);
+  or
+  $obj->is_orchid_ipv6($value);
+
+=over 4
+
+=item I<Description>
+
+Returns the untainted ip address if the test value appears to be a well-formed
+ORCHID purpose ip address.
+
+=item I<Arguments>
+
+=over 4
+
+=item $value
+
+The potential ip to test.
+
+=back
+
+=item I<Returns>
+
+Returns the untainted ip on success, undef on failure.
+
+=item I<Notes, Exceptions, & Bugs>
+
+The function does not make any attempt to check whether an ip
+actually exists.
+
+=item
+
+Note that the ORCHID block is a subset of the larger special block at
+2001:/23.
+
+=item
+
+This block is scheduled to go back into the general special pool in March of
+2014 unless there is an IETF consensus to extend its use. If that happens,
+this module will continue to provide this sub but it will always return false.
+
+=item I<From RFC 4383>
+
+    Prefix          : A constant 28-bit-long bitstring value
+                      (2001:10::/28).
+
+=back
+
+=cut
+
 =pod
 
 =item B<is_public_ipv6> - is it a valid public ipv6 address
@@ -1242,15 +1300,30 @@ actually exists.
 
 {
     my %ipv6_networks = (
-        loopback  => '::1/128',
-        private   => 'fc00::/7',
-        multicast => 'ff00::/8',
-        linklocal => 'fe80::/10',
-        special   => '2001::/23',
-        teredo    => '2001::/32',
+        loopback  => { networks => '::1/128' },
+        private   => { networks => 'fc00::/7' },
+        multicast => { networks => 'ff00::/8' },
+        linklocal => { networks => 'fe80::/10' },
+        special   => { networks => '2001::/23' },
+        teredo    => {
+            networks  => '2001::/32',
+            subnet_of => 'special',
+        },
+        orchid => {
+            networks  => '2001:10::/28',
+            subnet_of => 'special',
+        },
     );
 
     _build_is_X_ip_subs(\%ipv6_networks, 6);
+
+    # This exists for the benefit of the test code.
+    sub _network_is_subnet_of {
+        my $network = shift;
+        my $other   = shift;
+
+        return ($ipv6_networks{$network}{subnet_of} || q{}) eq $other;
+    }
 }
 
 sub _build_is_X_ip_subs {
@@ -1266,13 +1339,14 @@ sub _build_is_X_ip_subs {
     for my $type (keys %{$networks}) {
         my @nets
             = map { NetAddr::IP->$netaddr_new($_) }
-            ref $networks->{$type}
-            ? @{ $networks->{$type} }
-            : $networks->{$type};
+            ref $networks->{$type}{networks}
+            ? @{ $networks->{$type}{networks} }
+            : $networks->{$type}{networks};
 
-        # TEREDO is a subset of the special block so there's no point in
-        # checking for it in is_public_ipv6.
-        unless ($type eq 'teredo') {
+        # Some IPv6 networks (like TEREDO) are a subset of the special block
+        # so there's no point in checking for them in the is_public_ipv6()
+        # sub.
+        unless ($networks->{$type}{subnet_of}) {
             push @all_nets, @nets;
         }
 
