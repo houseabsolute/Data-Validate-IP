@@ -670,6 +670,20 @@ actually exists.
    documentation.  Addresses within this block should not appear on the
    public Internet.
 
+   198.51.100.0/24 - This block is assigned as "TEST-NET-2" for use in
+   documentation and example code.  It is often used in conjunction with
+   domain names example.com or example.net in vendor and protocol
+   documentation.  As described in [RFC5737], addresses within this
+   block do not legitimately appear on the public Internet and can be
+   used without any coordination with IANA or an Internet registry.
+
+   203.0.113.0/24 - This block is assigned as "TEST-NET-3" for use in
+   documentation and example code.  It is often used in conjunction with
+   domain names example.com or example.net in vendor and protocol
+   documentation.  As described in [RFC5737], addresses within this
+   block do not legitimately appear on the public Internet and can be
+   used without any coordination with IANA or an Internet registry.
+
 =back
 
 =item B<is_multicast_ipv4> - is it a valid multicast ipv4 address
@@ -806,20 +820,6 @@ actually exists.
    Internet.  Packets with source addresses from this range are not
    meant to be forwarded across the Internet.
 
-   198.51.100.0/24 - This block is assigned as "TEST-NET-2" for use in
-   documentation and example code.  It is often used in conjunction with
-   domain names example.com or example.net in vendor and protocol
-   documentation.  As described in [RFC5737], addresses within this
-   block do not legitimately appear on the public Internet and can be
-   used without any coordination with IANA or an Internet registry.
-
-   203.0.113.0/24 - This block is assigned as "TEST-NET-3" for use in
-   documentation and example code.  It is often used in conjunction with
-   domain names example.com or example.net in vendor and protocol
-   documentation.  As described in [RFC5737], addresses within this
-   block do not legitimately appear on the public Internet and can be
-   used without any coordination with IANA or an Internet registry.
-
    240.0.0.0/4 - This block, formerly known as the Class E address
    space, is reserved for future use; see [RFC1112], Section 4.
 
@@ -872,7 +872,14 @@ non- private/testnet/loopback ip.
                 192.168.0.0/16
                 )
         ],
-        testnet    => [qw(192.0.2.0/24)],
+        testnet => [
+            qw(
+                192.0.2.0/24
+                198.51.100.0/24
+                203.0.113.0/24
+                )
+        ],
+        anycast  => [qw(192.88.99.0/24)],
         multicast  => [qw(224.0.0.0/4)],
         linklocal  => [qw(169.254.0.0/16)],
         unroutable => [
@@ -881,8 +888,6 @@ non- private/testnet/loopback ip.
                 100.64.0.0/10
                 192.0.0.0/29
                 198.18.0.0/15
-                198.51.100.0/24
-                203.0.113.0/24
                 240.0.0.0/4
                 )
         ],

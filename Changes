@@ -1,4 +1,8 @@
 {{$NEXT}}
+    - The 198.51.100.0/24 and 203.0.113.0/24 networks were mistakenly put in
+      the unroutable list, rather than the testnet list. This has been
+      fixed. Note that if you've just been using is_public_ipv4 in your code,
+      there are no changes in the results.
 
 0.20  Sat Jul  13 2013
     - Add docs for the is_public_ipv6() sub that was added in 0.15. Reported
