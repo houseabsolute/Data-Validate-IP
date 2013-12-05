@@ -20,17 +20,24 @@ all_pod_files_spelling_ok;
 
 __DATA__
 CIDR
+IETF
 IP
 IPv
 Neely
 OO
 Rolsky
 Sonnen
+TEREDO
+anycast
+functoins
 ip
 ipv
 loopback
 multicast
 namespace
+routable
+subnet
 testnet
+unicast
 unroutable
 validator
