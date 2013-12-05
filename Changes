@@ -15,6 +15,8 @@
       larger special network, and as such were already excluded by
       is_public_ipv6(), though arguably the TEREDO addresses _should_ be
       considered public.
+    - Rewrote most of the docs to greatly reduce the amount of text and to
+      improve the ToC on MetaCPAN and search.cpan.org.
 
 0.20  Sat Jul  13 2013
     - Add docs for the is_public_ipv6() sub that was added in 0.15. Reported

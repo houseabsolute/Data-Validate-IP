@@ -44,121 +44,11 @@ our @EXPORT = qw(
     is_innet_ipv4
 );
 
-# ABSTRACT: ipv4 and ipv6 validation methods
-
-=head1 SYNOPSIS
-
-  use Data::Validate::IP qw(is_ipv4 is_ipv6);
-
-  if (is_ipv4($suspect)) {
-      print "Looks like an ipv4 address";
-  }
-  else {
-      print "Not an ipv4 address\n";
-  }
-
-  if (is_ipv6($suspect)) {
-      print "Looks like an ipv6 address";
-  }
-  else {
-      print "Not an ipv6 address\n";
-  }
-
-  # or as an object
-  my $v = Data::Validate::IP->new();
-
-  die "not an ipv4 ip" unless ($v->is_ipv4('domain.com'));
-
-  die "not an ipv6 ip" unless ($v->is_ipv6('domain.com'));
-
-=head1 DESCRIPTION
-
-This module collects ip validation routines to make input validation,
-and untainting easier and more readable.
-
-All functions return an untainted value if the test passes, and undef if
-it fails.  This means that you should always check for a defined status explicitly.
-Don't assume the return will be true. (e.g. is_username('0'))
-
-The value to test is always the first (and often only) argument.
-
-All of the functions below are exported by default.
-
-=head1 FUNCTIONS
-
-=over 4
-
-
-=item B<new> - constructor for OO usage
-
-  $obj = Data::Validate::IP->new();
-
-=over 4
-
-=item I<Description>
-
-Returns a Data::Validator::IP object.  This lets you access all the validator function
-calls as methods without importing them into your namespace or using the clumsy
-Data::Validate::IP::function_name() format.
-
-=item I<Arguments>
-
-None
-
-=item I<Returns>
-
-Returns a Data::Validate::IP object
-
-=back
-
-=cut
-
 sub new {
     my $class = shift;
 
     return bless {}, $class;
 }
-
-# -------------------------------------------------------------------------------
-
-=pod
-
-=item B<is_ipv4> - does the value look like an ip v4 address?
-
-  is_ipv4($value);
-  or
-  $obj->is_ipv4($value);
-
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists. It only looks to see that the format is appropriate.
-
-=back
-
-=cut
 
 sub _fast_is_ipv4 {
     shift if ref $_[0];
@@ -187,45 +77,6 @@ sub _slow_is_ipv4 {
 
     return join('.', @octets);
 }
-
-# -------------------------------------------------------------------------------
-#
-
-=pod
-
-=item B<is_ipv6> - does the value look like an ip v6 address?
-
-  is_ipv6($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists. It only looks to see that the format is appropriate.
-
-=back
-
-=cut
 
 sub _fast_is_ipv6 {
     shift if ref $_[0];
@@ -310,49 +161,6 @@ sub _slow_is_ipv6 {
 
 }
 
-=pod
-
-=item B<is_innet_ipv4> - is it a valid ipv4 address in the network specified
-
-  is_innet_ipv4($value,$network);
-  or
-  $obj->is_innet_ipv4($value,$network);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-ip address inside of the network specified
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=item $network
-
-The potential network the IP must be a part of. This should be specified in
-CIDR notation, for example "15.0.15.0/24".
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-=back
-
-=cut
-
 # This is just a quick test - we'll let NetAddr::IP decide if the address is
 # valid.
 my $ip_re = qr/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/;
@@ -369,7 +177,8 @@ sub is_innet_ipv4 {
 
     # Backwards compatibility hacks to make it accept things that Net::Netmask
     # accepts.
-    unless ($network eq 'default'
+    unless ((blessed $network && $network->isa('NetAddr::IP'))
+        || $network eq 'default'
         || $network =~ /^$ip_re$/
         || $network =~ m{^$ip_re/\d\d?$}) {
 
@@ -414,9 +223,10 @@ sub is_innet_ipv4 {
                 'Use of non-CIDR notation for networks with is_innet_ipv4() is deprecated'
             );
         }
+
+        $network = NetAddr::IP->new($network) or return;
     }
 
-    $network = NetAddr::IP->new($network) or return;
     my $netaddr_ip = NetAddr::IP->new($ip) or return;
 
     return $ip if $network->contains($netaddr_ip);
@@ -521,373 +331,6 @@ sub is_innet_ipv4 {
     }
 }
 
-=pod
-
-=item B<is_private_ipv4> - is it a valid private ipv4 address
-
-  is_private_ipv4($value);
-  or
-  $obj->is_private_ipv4($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-private ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-=item I<From RFC 5735>
-
-   10.0.0.0/8 - This block is set aside for use in private networks.
-   Its intended use is documented in [RFC1918].  Addresses within this
-   block should not appear on the public Internet.
-
-   172.16.0.0/12 - This block is set aside for use in private networks.
-   Its intended use is documented in [RFC1918].  Addresses within this
-   block should not appear on the public Internet.
-
-   192.168.0.0/16 - This block is set aside for use in private networks.
-   Its intended use is documented in [RFC1918].  Addresses within this
-   block should not appear on the public Internet.
-
-
-=back
-
-=item B<is_loopback_ipv4> - is it a valid loopback ipv4 address
-
-  is_loopback_ipv4($value);
-  or
-  $obj->is_loopback_ipv4($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-loopback ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-=item I<From RFC 5735>
-
-   127.0.0.0/8 - This block is assigned for use as the Internet host
-   loopback address.  A datagram sent by a higher level protocol to an
-   address anywhere within this block should loop back inside the host.
-   This is ordinarily implemented using only 127.0.0.1/32 for loopback,
-   but no addresses within this block should ever appear on any network
-   anywhere [RFC1700, page 5].
-
-=back
-
-=item B<is_testnet_ipv4> - is it a valid testnet ipv4 address
-
-  is_testnet_ipv4($value);
-  or
-  $obj->is_testnet_ipv4($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-testnet ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-=item I<From RFC 5735>
-
-   192.0.2.0/24 - This block is assigned as "TEST-NET" for use in
-   documentation and example code.  It is often used in conjunction with
-   domain names example.com or example.net in vendor and protocol
-   documentation.  Addresses within this block should not appear on the
-   public Internet.
-
-   198.51.100.0/24 - This block is assigned as "TEST-NET-2" for use in
-   documentation and example code.  It is often used in conjunction with
-   domain names example.com or example.net in vendor and protocol
-   documentation.  As described in [RFC5737], addresses within this
-   block do not legitimately appear on the public Internet and can be
-   used without any coordination with IANA or an Internet registry.
-
-   203.0.113.0/24 - This block is assigned as "TEST-NET-3" for use in
-   documentation and example code.  It is often used in conjunction with
-   domain names example.com or example.net in vendor and protocol
-   documentation.  As described in [RFC5737], addresses within this
-   block do not legitimately appear on the public Internet and can be
-   used without any coordination with IANA or an Internet registry.
-
-=back
-
-=item B<is_multicast_ipv4> - is it a valid multicast ipv4 address
-
-  is_multicast_ipv4($value);
-  or
-  $obj->is_multicast_ipv4($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-multicast ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-=item I<From RFC 5735>
-
-   224.0.0.0/4 - This block, formerly known as the Class D address
-   space, is allocated for use in IPv4 multicast address assignments.
-   The IANA guidelines for assignments from this space are described in
-   [RFC3171].
-
-=back
-
-=item B<is_anycast_ipv4> - is it a valid 6to4 anycast ipv4 address
-
-  is_anycast_ipv4($value);
-  or
-  $obj->is_anycast_ipv4($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-anycast ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-=item I<From RFC 3068>
-
-   An IPv4 address prefix used to advertise an IPv4  route to an
-   available 6to4 Relay Router, as defined in this memo.
-
-   The value of this prefix is 192.88.99.0/24
-
-=back
-
-=item B<is_linklocal_ipv4> - is it a valid link-local ipv4 address
-
-  is_linklocal_ipv4($value);
-  or
-  $obj->is_linklocal_ipv4($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-link-local ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-=item I<From RFC 5735>
-
-   169.254.0.0/16 - This is the "link local" block.  It is allocated for
-   communication between hosts on a single link.  Hosts obtain these
-   addresses by auto-configuration, such as when a DHCP server may not
-   be found.
-
-=back
-
-=item B<is_unroutable_ipv4> - is it a valid unroutable ipv4 address
-
-  is_unroutable_ipv4($value);
-  or
-  $obj->is_unroutable_ipv4($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-unroutable ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-=item I<From RFC 5375>
-
-   0.0.0.0/8 - Addresses in this block refer to source hosts on "this"
-   network.  Address 0.0.0.0/32 may be used as a source address for this
-   host on this network; other addresses within 0.0.0.0/8 may be used to
-   refer to specified hosts on this network ([RFC1122], Section
-   3.2.1.3).
-
-   192.0.0.0/24 - This block is reserved for IETF protocol assignments.
-   At the time of writing this document, there are no current
-   assignments.  Allocation policy for future assignments is given in
-   [RFC5736].
-
-   198.18.0.0/15 - This block has been allocated for use in benchmark
-   tests of network interconnect devices.  [RFC2544] explains that this
-   range was assigned to minimize the chance of conflict in case a
-   testing device were to be accidentally connected to part of the
-   Internet.  Packets with source addresses from this range are not
-   meant to be forwarded across the Internet.
-
-   240.0.0.0/4 - This block, formerly known as the Class E address
-   space, is reserved for future use; see [RFC1112], Section 4.
-
-=back
-
-=item B<is_public_ipv4> - is it a valid public ipv4 address
-
-  is_public_ipv4($value);
-  or
-  $obj->is_public_ipv4($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-public ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists or could truly route.  This is true for any
-non- private/testnet/loopback ip.
-
-=back
-
-=cut
-
 {
     my %ipv4_networks = (
         loopback => { networks => '127.0.0.0/8' },
@@ -927,486 +370,6 @@ non- private/testnet/loopback ip.
 
     _build_is_X_ip_subs(\%ipv4_networks, 4);
 }
-
-=pod
-
-=item B<is_private_ipv6> - is it a valid private ipv6 address
-
-  is_private_ipv6($value);
-  or
-  $obj->is_private_ipv6($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-private ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-=item I<From RFC 4193>
-
-   The default behavior of exterior routing protocol sessions between
-   administrative routing regions must be to ignore receipt of and not
-   advertise prefixes in the FC00::/7 block.  A network operator may
-   specifically configure prefixes longer than FC00::/7 for inter-site
-   communication.
-
-=back
-
-=item B<is_loopback_ipv6> - is it a valid loopback ipv6 address
-
-  is_loopback_ipv6($value);
-  or
-  $obj->is_loopback_ipv6($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-loopback ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-=item I<From RFC 4291>
-
-   The unicast address 0:0:0:0:0:0:0:1 is called the loopback address.
-   It may be used by a node to send an IPv6 packet to itself.  It must
-   not be assigned to any physical interface.  It is treated as having
-   Link-Local scope, and may be thought of as the Link-Local unicast
-   address of a virtual interface (typically called the "loopback
-   interface") to an imaginary link that goes nowhere.
-
-=back
-
-=item B<is_ipv4_mapped_ipv6> - is it a valid ipv4-mapped ipv6 address
-
-  is_ipv4_mapped_ipv6($value);
-  or
-  $obj->is_ipv4_mapped_ipv6($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-IPv4-mapped ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-=item I<From RFC 4038>
-
-    Most implementations of dual stack allow IPv6-only applications to
-    interoperate with both IPv4 and IPv6 nodes.  IPv4 packets going to
-    IPv6 applications on a dual-stack node reach their destination
-    because their addresses are mapped by using IPv4-mapped IPv6
-    addresses: the IPv6 address ::FFFF:x.y.z.w represents the IPv4
-    address x.y.z.w.
-
-=back
-
-=item B<is_discard_ipv6> - is it a valid discard prefix ipv6 address
-
-  is_discard_ipv6($value);
-  or
-  $obj->is_discard_ipv6($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-discard prefix ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-=item I<From RFC 6666>
-
-    Per this document, IANA has recorded the allocation of the IPv6
-    address prefix 0100::/64 as a Discard-Only Prefix in the "Internet
-    Protocol Version 6 Address Space" and added the prefix to the "IANA
-    IPv6 Special Purpose Address Registry" [IANA-IPV6REG].  No end party
-    has been assigned to this prefix.  The prefix has been allocated from
-    ::/3.
-
-=back
-
-=item B<is_multicast_ipv6> - is it a valid multicast ipv6 address
-
-  is_multicast_ipv6($value);
-  or
-  $obj->is_multicast_ipv6($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-multicast ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-=item I<From RFC 4291>
-
-   An IPv6 multicast address is an identifier for a group of interfaces
-   (typically on different nodes).  An interface may belong to any
-   number of multicast groups.  Multicast addresses have the following
-   format:
-
-   |   8    |  4 |  4 |                  112 bits                   |
-   +------ -+----+----+---------------------------------------------+
-   |11111111|flgs|scop|                  group ID                   |
-   +--------+----+----+---------------------------------------------+
-
-=back
-
-=item B<is_linklocal_ipv6> - is it a valid link-local ipv6 address
-
-  is_linklocal_ipv6($value);
-  or
-  $obj->is_linklocal_ipv6($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-link-local ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-=item I<From RFC 4291>
-
-   Link-Local addresses are for use on a single link.  Link-Local
-   addresses have the following format:
-
-   |   10     |
-   |  bits    |         54 bits         |          64 bits           |
-   +----------+-------------------------+----------------------------+
-   |1111111010|           0             |       interface ID         |
-   +----------+-------------------------+----------------------------+
-
-   Link-Local addresses are designed to be used for addressing on a
-   single link for purposes such as automatic address configuration,
-   neighbor discovery, or when no routers are present.
-
-=back
-
-=item B<is_special_ipv6> - is it a valid special purpose ipv6 address
-
-  is_special_ipv6($value);
-  or
-  $obj->is_special_ipv6($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-special purpose ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-=item I<From RFC 2928>
-
-   The block of Sub-TLA IDs assigned to the IANA (i.e., 2001:0000::/29 -
-   2001:01F8::/29) is for assignment for testing and experimental usage
-   to support activities such as the 6bone, and for new approaches like
-   exchanges.
-
-=back
-
-The whole block of special IPv6 addresses can be written simply as 2001::/23.
-
-=item B<is_teredo_ipv6> - is it a valid TEREDO ipv6 address
-
-  is_teredo_ipv6($value);
-  or
-  $obj->is_teredo_ipv6($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-TEREDO ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-Note that the TEREDO block is a subset of the larger special block at
-2001:/23.
-
-=item I<From RFC 4380>
-
-   An IPv6 addressing prefix whose value is 2001:0000:/32.
-
-=back
-
-=item B<is_orchid_ipv6> - is it a valid ORCHID ipv6 address
-
-  is_orchid_ipv6($value);
-  or
-  $obj->is_orchid_ipv6($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-ORCHID ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-Note that the ORCHID block is a subset of the larger special block at
-2001:/23.
-
-This block is scheduled to go back into the general special pool in March of
-2014 unless there is an IETF consensus to extend its use. If that happens,
-this module will continue to provide this sub but it will always return false.
-
-=item I<From RFC 4383>
-
-    Prefix          : A constant 28-bit-long bitstring value
-                      (2001:10::/28).
-
-=back
-
-=item B<is_documentation_ipv6> - is it a valid ipv6 address for documentation
-
-  is_documentation_ipv6($value);
-  or
-  $obj->is_documentation_ipv6($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-documentation ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-=item I<From RFC 3849>
-
-    The prefix allocated for documentation purposes is 2001:DB8::/32
-
-=back
-
-=item B<is_public_ipv6> - is it a valid public ipv6 address
-
-  is_public_ipv6($value);
-  or
-  $obj->is_public_ipv6($value);
-
-=over 4
-
-=item I<Description>
-
-Returns the untainted ip address if the test value appears to be a well-formed
-public ip address.
-
-=item I<Arguments>
-
-=over 4
-
-=item $value
-
-The potential ip to test.
-
-=back
-
-=item I<Returns>
-
-Returns the untainted ip on success, undef on failure.
-
-=item I<Notes, Exceptions, & Bugs>
-
-The function does not make any attempt to check whether an ip
-actually exists.
-
-=item I<From RFC 4193>
-
-   The default behavior of exterior routing protocol sessions between
-   administrative routing regions must be to ignore receipt of and not
-   advertise prefixes in the FC00::/7 block.  A network operator may
-   specifically configure prefixes longer than FC00::/7 for inter-site
-   communication.
-
-=back
-
-=cut
 
 {
     my %ipv6_networks = (
@@ -1518,12 +481,198 @@ EOF
 }
 
 1;
+
+# ABSTRACT: IPv4 and IPv6 validation methods
+
 __END__
 
+=pod
 
-# -------------------------------------------------------------------------------
+=head1 SYNOPSIS
 
-=back
+  use Data::Validate::IP qw(is_ipv4 is_ipv6);
+
+  if (is_ipv4($suspect)) {
+      print "Looks like an IPv4 address";
+  }
+  else {
+      print "Not an IPv4 address\n";
+  }
+
+  if (is_ipv6($suspect)) {
+      print "Looks like an IPv6 address";
+  }
+  else {
+      print "Not an IPv6 address\n";
+  }
+
+  # or as an object
+  my $v = Data::Validate::IP->new();
+
+  die "not an IPv4 ip" unless ($v->is_ipv4('domain.com'));
+
+  die "not an IPv6 ip" unless ($v->is_ipv6('domain.com'));
+
+=head1 DESCRIPTION
+
+This module provides a number IP address validation subs that both validate
+and untaint their input. This includes both basic validate (C<is_ipv4()> and
+C<is_ipv6()>) and special cases like checking whether an address belongs to a
+specific network or whether an address is public or private (reserved).
+
+=head1 FUNCTIONS
+
+All of the functions below are exported by default.
+
+All functions return an untainted value if the test passes and undef if it
+fails. In theory, this means that you should always check for a defined status
+explicitly but in practice there are no valid IP addresses where the string
+form evaluates to false in Perl.
+
+Note that none of these functoins actually attempt to test whether the given
+IP address is routable from your device; they are purely semantic checks.
+
+=head2 C<is_ipv4($ip)> and C<is_ipv6($ip)>
+
+These functions simply check whether the address is a valid IPv4 or IPv6 address.
+
+=head2 C<is_innet_ipv4($ip, $network)>
+
+This subroutine checks whether the address belongs to the given IPv4
+network. The C<$network> argument can either be a string in CIDR notation like
+"15.0.15.0/24" or a L<NetAddr::IP> object.
+
+This subroutine used to accept many more forms of network specifications
+(anything L<Net::Netmask> accepts) but this has been deprecated.
+
+=head2 C<is_unroutable_ipv4($ip)>
+
+This subroutine checks whether the address belongs to any of several special
+use IPv4 networks - C<0.0.0.0/8>, C<100.64.0.0/10>, C<192.0.0.0/29>,
+C<198.18.0.0/15>, C<240.0.0.0/4> - as defined by L<RFC
+5735|http://tools.ietf.org/html/rfc5735>, L<RFC
+6333|http://tools.ietf.org/html/rfc6333>, and L<RFC
+6958|http://tools.ietf.org/html/rfc6598>.
+
+Arguably, these should be broken down further but this subroutine will always
+exist for backwards compatibility.
+
+=head2 C<is_private_ipv4($ip)>
+
+This subroutine checks whether the address belongs to any of the private IPv4
+networks - C<10.0.0.0/8>, C<172.16.0.0/12>, C<192.168.0.0/16> - as defined by
+L<RFC 5735|http://tools.ietf.org/html/rfc5735>.
+
+=head2 C<is_loopback_ipv4($ip)>
+
+This subroutine checks whether the address belongs to the IPv4 loopback
+network - C<127.0.0.0/8> - as defined by L<RFC
+5735|http://tools.ietf.org/html/rfc5735>.
+
+=head2 C<is_linklocal_ipv4($ip)>
+
+This subroutine checks whether the address belongs to the IPv4 link local
+network - C<169.254.0.0/16 - as defined by L<RFC
+5735|http://tools.ietf.org/html/rfc5735>.
+
+=head2 C<is_testnet_ipv4($ip)>
+
+This subroutine checks whether the address belongs to any of the IPv4 TEST-NET
+networks for use in documentation and example code - C<192.0.2.0/24>,
+C<198.51.100.0/24>, and C<203.0.113.0/24> - as defined by L<RFC
+5735|http://tools.ietf.org/html/rfc5735>.
+
+=head2 C<is_anycast_ipv4($ip)>
+
+This subroutine checks whether the address belongs to the 6to4 relay anycast
+network - C<192.88.99.0/24> - as defined by L<RFC
+5735|http://tools.ietf.org/html/rfc5735>.
+
+=head2 C<is_multicast_ipv4($ip)>
+
+This subroutine checks whether the address belongs to the IPv4 multicast
+network - C<224.0.0.0/4> - as defined by L<RFC
+5735|http://tools.ietf.org/html/rfc5735>.
+
+=head2 C<is_loopback_ipv6($ip)>
+
+This subroutine checks whether the address is the IPv6 loopback address -
+C<::1/128> - as defined by L<RFC 4291|http://tools.ietf.org/html/rfc4291>.
+
+=head2 C<is_ipv4_mapped_ipv6($ip)>
+
+This subroutine checks whether the address belongs to the IPv6 IPv4-mapped
+address network - C<::ffff:0:0/96> - as defined by L<RFC
+4291|http://tools.ietf.org/html/rfc4291>.
+
+=head2 C<is_discard_ipv6($ip)>
+
+This subroutine checks whether the address belongs to the IPv6 discard prefix
+network - C<100::/64> - as defined by L<RFC
+6666|http://tools.ietf.org/html/rfc6666>.
+
+=head2 C<is_special_ipv6($ip)>
+
+This subroutine checks whether the address belongs to the IPv6 special network
+- C<2001::/23> - as defined by L<RFC 2928|http://tools.ietf.org/html/rfc2928>.
+
+=head2 C<is_teredo_ipv6($ip)>
+
+This subroutine checks whether the address belongs to the IPv6 TEREDO network
+- C<2001::/32> - as defined by L<RFC 4380|http://tools.ietf.org/html/rfc4380>.
+
+Note that this network is a subnet of the larger special network at
+C<2001::/23>.
+
+=head2 C<is_orchid_ipv6($ip)>
+
+This subroutine checks whether the address belongs to the IPv6 ORCHID network
+- C<2001::/32> - as defined by L<RFC 4380|http://tools.ietf.org/html/rfc4380>.
+
+Note that this network is a subnet of the larger special network at
+C<2001::/23>.
+
+This network is currently scheduled to be returned to the special pool in
+March of 2014 unless the IETF extends its use. If that happens this subroutine
+will continue to exist but will always return false.
+
+=head2 C<is_documentation_ipv6($ip)>
+
+This subroutine checks whether the address belongs to the IPv6 documentation
+network - C<2001:DB8::/32> - as defined by L<RFC
+3849|http://tools.ietf.org/html/rfc3849>.
+
+=head2 C<is_private_ipv6($ip)>
+
+This subroutine checks whether the address belongs to the IPv6 private network
+- C<FC00::/7> - as defined by L<RFC 4193|http://tools.ietf.org/html/rfc4193>.
+
+=head2 C<is_linklocal_ipv6($ip)>
+
+This subroutine checks whether the address belongs to the IPv6 link-local
+unicast network - C<FE80::/10> - as defined by L<RFC
+4291|http://tools.ietf.org/html/rfc4291>.
+
+=head2 C<is_multicast_ipv6($ip)>
+
+This subroutine checks whether the address belongs to the IPv6 multicast
+network - C<FF00::/8> - as defined by L<RFC
+4291|http://tools.ietf.org/html/rfc4291>.
+
+=head2 C<is_public_ipv4($ip)> and C<is_public_ipv6($ip)>
+
+These subroutines check whether the given IP address belongs to any of the
+special case networks defined previously. Note that this is B<not> simply the
+opposite of checking C<is_private_ipv4()> or C<is_private_ipv6()>. The private
+networks are a subset of all the special case networks.
+
+=head1 OBJECT-ORIENTED INTERFACE
+
+This module can also be used as a class. You can call
+C<<Data::Validate::IP->new()>> to get an object and then call any of the
+validation subroutines as methods on that object. This is somewhat pointless
+since the object will never contain any state but this interface is kept for
+backwards compatibility.
 
 =head1 SEE ALSO
 
@@ -1534,10 +683,6 @@ B<[RFC 5735] [RFC 1918]>
 IPv6
 
 B<[RFC 2460] [RFC 4193] [RFC 4291] [RFC 6434]>
-
-=head1 IPv6
-
-IPv6 Support is new, please test it thoroughly and report any bugs.
 
 =head1 BUGS
 
@@ -1552,6 +697,6 @@ Thanks to Richard Sonnen <F<sonnen@richardsonnen.com>> for writing the
 Data::Validate module.
 
 Thanks to Matt Dainty <F<matt@bodgit-n-scarper.com>> for adding the
-is_multicast_ipv4 and is_linklocal_ipv4 code.
+C<is_multicast_ipv4()> and C<is_linklocal_ipv4()> code.
 
 =cut
