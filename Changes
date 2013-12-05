@@ -6,6 +6,15 @@
     - Added the 6to4 anycast network - 192.88.99.0/24. Addresses in this
       network are not considered public and there is now a new
       is_anycast_ipv4() subroutine exported.
+    - Added a number of missing reserved IPv6 networks. These are the
+      IPv4-mapped block (::ffff:0:0/96), the discard prefix (100::/64), TEREDO
+      (2001::/32), ORCHID (2001:10::/28), and documentation (2001:db8::/32)
+      IPv6 networks. There are now is_ipv4_mapped_ipv6(), is_discard_ipv6(),
+      is_teredo_ipv6(), is_orchid_ipv6(), and is_documentation_ipv6()
+      subs. Note that the TEREDO and ORCHID networks are both subnets of the
+      larger special network, and as such were already excluded by
+      is_public_ipv6(), though arguably the TEREDO addresses _should_ be
+      considered public.
 
 0.20  Sat Jul  13 2013
     - Add docs for the is_public_ipv6() sub that was added in 0.15. Reported
