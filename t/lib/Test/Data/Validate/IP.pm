@@ -1,4 +1,4 @@
-package    # hide form PAUSE
+package    # hide from PAUSE
     Test::Data::Validate::IP;
 
 use strict;
