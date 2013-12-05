@@ -52,7 +52,15 @@ my %ipv6_types = (
             abcd::
             )
     ],
-    loopback  => [qw(::1)],
+    loopback    => [qw(::1)],
+    ipv4_mapped => [
+        qw(
+            ::ffff:0:0
+            ::ffff:0:1234
+            ::ffff:1.2.3.4
+            ::ffff:ffff:ffff
+            )
+    ],
     multicast => [
         qw(
             ff00::

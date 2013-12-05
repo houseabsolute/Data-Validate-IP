@@ -1015,6 +1015,49 @@ actually exists.
 
 =back
 
+=item B<is_ipv4_mapped_ipv6> - is it a valid ipv4-mapped ipv6 address
+
+  is_ipv4_mapped_ipv6($value);
+  or
+  $obj->is_ipv4_mapped_ipv6($value);
+
+=over 4
+
+=item I<Description>
+
+Returns the untainted ip address if the test value appears to be a well-formed
+IPv4-mapped ip address.
+
+=item I<Arguments>
+
+=over 4
+
+=item $value
+
+The potential ip to test.
+
+=back
+
+=item I<Returns>
+
+Returns the untainted ip on success, undef on failure.
+
+=item I<Notes, Exceptions, & Bugs>
+
+The function does not make any attempt to check whether an ip
+actually exists.
+
+=item I<From RFC 4038>
+
+    Most implementations of dual stack allow IPv6-only applications to
+    interoperate with both IPv4 and IPv6 nodes.  IPv4 packets going to
+    IPv6 applications on a dual-stack node reach their destination
+    because their addresses are mapped by using IPv4-mapped IPv6
+    addresses: the IPv6 address ::FFFF:x.y.z.w represents the IPv4
+    address x.y.z.w.
+
+=back
+
 =item B<is_multicast_ipv6> - is it a valid multicast ipv6 address
 
   is_multicast_ipv6($value);
@@ -1324,9 +1367,10 @@ actually exists.
 
 {
     my %ipv6_networks = (
-        loopback => { networks => '::1/128' },
-        special  => { networks => '2001::/23' },
-        teredo   => {
+        loopback    => { networks => '::1/128' },
+        ipv4_mapped => { networks => '::ffff:0:0/96' },
+        special     => { networks => '2001::/23' },
+        teredo      => {
             networks  => '2001::/32',
             subnet_of => 'special',
         },
