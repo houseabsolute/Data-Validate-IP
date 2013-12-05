@@ -1185,8 +1185,6 @@ Returns the untainted ip on success, undef on failure.
 The function does not make any attempt to check whether an ip
 actually exists.
 
-=item
-
 Note that the TEREDO block is a subset of the larger special block at
 2001:/23.
 
@@ -1228,12 +1226,8 @@ Returns the untainted ip on success, undef on failure.
 The function does not make any attempt to check whether an ip
 actually exists.
 
-=item
-
 Note that the ORCHID block is a subset of the larger special block at
 2001:/23.
-
-=item
 
 This block is scheduled to go back into the general special pool in March of
 2014 unless there is an IETF consensus to extend its use. If that happens,
