@@ -283,7 +283,7 @@ sub _sub_for_type {
         no strict 'refs';
         \&{$sub_name};
         }
-        or die "No sub named $sub_name was not imported";
+        or die "No sub named $sub_name was imported";
 
     return ($sub_name, $sub);
 }
