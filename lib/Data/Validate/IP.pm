@@ -1153,8 +1153,6 @@ actually exists.
 
 The whole block of special IPv6 addresses can be written simply as 2001::/23.
 
-=cut
-
 =item B<is_teredo_ipv6> - is it a valid TEREDO ipv6 address
 
   is_teredo_ipv6($value);
@@ -1197,8 +1195,6 @@ Note that the TEREDO block is a subset of the larger special block at
    An IPv6 addressing prefix whose value is 2001:0000:/32.
 
 =back
-
-=cut
 
 =item B<is_orchid_ipv6> - is it a valid ORCHID ipv6 address
 
@@ -1249,10 +1245,6 @@ this module will continue to provide this sub but it will always return false.
                       (2001:10::/28).
 
 =back
-
-=cut
-
-=pod
 
 =item B<is_public_ipv6> - is it a valid public ipv6 address
 
