@@ -1324,12 +1324,9 @@ actually exists.
 
 {
     my %ipv6_networks = (
-        loopback  => { networks => '::1/128' },
-        private   => { networks => 'fc00::/7' },
-        multicast => { networks => 'ff00::/8' },
-        linklocal => { networks => 'fe80::/10' },
-        special   => { networks => '2001::/23' },
-        teredo    => {
+        loopback => { networks => '::1/128' },
+        special  => { networks => '2001::/23' },
+        teredo   => {
             networks  => '2001::/32',
             subnet_of => 'special',
         },
@@ -1338,6 +1335,9 @@ actually exists.
             subnet_of => 'special',
         },
         documentation => { networks => '2001:db8::/32' },
+        private       => { networks => 'fc00::/7' },
+        linklocal     => { networks => 'fe80::/10' },
+        multicast     => { networks => 'ff00::/8' },
     );
 
     _build_is_X_ip_subs(\%ipv6_networks, 6);
