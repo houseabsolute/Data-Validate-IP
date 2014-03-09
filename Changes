@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.23  Sun Mar  09 2014
     - Fixed is_ipv6 to correctly fail for a string like ":abcd" on platforms
       where inet_pton() isn't usable. Reported by Brian Bickerton. RT #93622.
     - As a side effect of the above, the code to check IPv6 addresses when
