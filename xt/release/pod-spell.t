@@ -29,7 +29,6 @@ Rolsky
 Sonnen
 TEREDO
 anycast
-functoins
 ip
 ipv
 loopback
