@@ -90,75 +90,21 @@ sub _fast_is_ipv6 {
     return $1;
 }
 
-sub _slow_is_ipv6 {
-    shift if ref $_[0];
-    my $value = shift;
+{
+    # This comes from Regexp::IPv6
+    my $ipv6_re = qr/(?^::(?::[0-9a-fA-F]{1,4}){0,5}(?:(?::[0-9a-fA-F]{1,4}){1,2}|:(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})))|[0-9a-fA-F]{1,4}:(?:[0-9a-fA-F]{1,4}:(?:[0-9a-fA-F]{1,4}:(?:[0-9a-fA-F]{1,4}:(?:[0-9a-fA-F]{1,4}:(?:[0-9a-fA-F]{1,4}:(?:[0-9a-fA-F]{1,4}:(?:[0-9a-fA-F]{1,4}|:)|(?::(?:[0-9a-fA-F]{1,4})?|(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))))|:(?:(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))|[0-9a-fA-F]{1,4}(?::[0-9a-fA-F]{1,4})?|))|(?::(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))|:[0-9a-fA-F]{1,4}(?::(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))|(?::[0-9a-fA-F]{1,4}){0,2})|:))|(?:(?::[0-9a-fA-F]{1,4}){0,2}(?::(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))|(?::[0-9a-fA-F]{1,4}){1,2})|:))|(?:(?::[0-9a-fA-F]{1,4}){0,3}(?::(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))|(?::[0-9a-fA-F]{1,4}){1,2})|:))|(?:(?::[0-9a-fA-F]{1,4}){0,4}(?::(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))|(?::[0-9a-fA-F]{1,4}){1,2})|:)))/;
 
-    return unless defined($value);
+    sub _slow_is_ipv6 {
+        shift if ref $_[0];
+        my $value = shift;
 
-    # This is valid but the algorithm below won't do the right thing with it.
-    return '::' if $value eq '::';
+        return unless defined($value);
 
-    # if there is a :: then there must be only one ::
-    # and the length can be variable
-    # without it, the length must be 8 groups
-
-    my (@chunks) = split(':', $value);
-
-    #need to see if last chunk is an ipv4 address, if it is we pop it off and
-    #exempt it from the normal ipv6 checking and stick it back on at the end.
-    #if only one chunk and it matches it isn't ipv6 - it is a ipv4 address only
-    my $ipv4;
-    my $expected_chunks = 8;
-    if (@chunks > 1 && is_ipv4($chunks[-1])) {
-        $ipv4 = pop(@chunks);
-        $expected_chunks--;
+        return '::' if $value eq '::';
+        return unless $value =~ /^$ipv6_re$/;
+        $value =~ /(.+)/;
+        return $1;
     }
-    my $empty = 0;
-
-    #Workaround to handle trailing :: being valid
-
-    if ($value =~ /[0123456789abcdef]{1,4}::$/) {
-        $empty++;
-    }
-    elsif ($value =~ /:$/) {
-
-        #single trailing ':' is invalid
-        return;
-    }
-    foreach (@chunks) {
-        return unless (/^[0123456789abcdef]{0,4}$/i);
-        $empty++ if /^$/;
-    }
-
-    #More than one :: block is bad, but if it starts with :: it will look like two, so we need an exception.
-    if ($empty == 2 && $value =~ /^::/) {
-
-        #This is ok
-    }
-    elsif ($empty > 1) {
-        return;
-    }
-
-    if (defined $ipv4) {
-        push(@chunks, $ipv4);
-    }
-
-    #Need 8 chunks, or we need an empty section that could be filled to represent the missing '0' sections
-    return
-        unless (@chunks == $expected_chunks
-        || @chunks < $expected_chunks && $empty);
-
-    my $return = join(':', @chunks);
-
-    #Explicitly untaint the data
-    $return =~ /(.+)/;
-    $return = $1;
-
-    #Need to handle the exception of trailing :: being valid
-    return $return . '::' if ($value =~ /::$/);
-    return $return;
-
 }
 
 # This is just a quick test - we'll let NetAddr::IP decide if the address is
