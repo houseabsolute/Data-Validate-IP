@@ -254,6 +254,7 @@ sub _ipv6_basic_tests {
         bbb.bbb.bbb
         :::
         g123::1234
+        :abcd
     );
 
     for my $ip (@invalid) {
