@@ -260,6 +260,16 @@ sub _ipv6_basic_tests {
     for my $ip (@invalid) {
         is(is_ipv6($ip),          undef, "is_ipv6($ip) returns undef");
         is($object->is_ipv6($ip), undef, "->is_ipv6($ip) returns undef");
+
+        for my $type (sort keys %ipv6_types) {
+            my ($is_sub_name, $is_sub) = _sub_for_type($type, 6);
+
+            is($is_sub->($ip), undef, "$is_sub_name($ip) returns undef");
+            is(
+                $object->$is_sub_name($ip), undef,
+                "->$is_sub_name($ip) returns undef"
+            );
+        }
     }
 }
 
