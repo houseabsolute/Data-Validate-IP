@@ -135,15 +135,18 @@ sub _ipv4_basic_tests {
         is($object->is_ipv4($ip), $ip, "->is_ipv4($ip) returns $ip");
     }
 
-    my @invalid_ipv4 = qw(
-        www.neely.cx
-        216.17.184.G
-        216.17.184.1.
-        216.17.184
-        216.17.184.
-        256.17.184.1
-        216.017.184.1
-        016.17.184.1
+    my @invalid_ipv4 = (
+        qw(
+            www.neely.cx
+            216.17.184.G
+            216.17.184.1.
+            216.17.184
+            216.17.184.
+            256.17.184.1
+            216.017.184.1
+            016.17.184.1
+            ),
+        "1.1.1.1\0 exploit goes here",
     );
 
     for my $ip (@invalid_ipv4) {
@@ -244,17 +247,20 @@ sub _ipv6_basic_tests {
         is($object->is_ipv6($ip), $ip, "->is_ipv6($ip) returns $ip");
     }
 
-    my @invalid = qw(
-        2067:fa88
-        2067:FA88
-        2067:::
-        2067:::1
-        2067::1:
-        216.17.184.1
-        bbb.bbb.bbb
-        :::
-        g123::1234
-        :abcd
+    my @invalid = (
+        qw(
+            2067:fa88
+            2067:FA88
+            2067:::
+            2067:::1
+            2067::1:
+            216.17.184.1
+            bbb.bbb.bbb
+            :::
+            g123::1234
+            :abcd
+            ),
+        "::1\0 invalid"
     );
 
     for my $ip (@invalid) {

@@ -56,7 +56,9 @@ sub _fast_is_ipv4 {
     my $value = shift;
 
     return
-        unless defined $value && defined inet_pton(Socket::AF_INET(), $value);
+           unless defined $value
+        && $value !~ /\0/
+        && defined inet_pton(Socket::AF_INET(), $value);
 
     $value =~ /(.+)/;
     return $1;
@@ -84,7 +86,8 @@ sub _fast_is_ipv6 {
     my $value = shift;
 
     return
-        unless defined $value
+           unless defined $value
+        && $value !~ /\0/
         && defined inet_pton(Socket::AF_INET6(), $value);
 
     $value =~ /(.+)/;
