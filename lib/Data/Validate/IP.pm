@@ -616,6 +616,8 @@ special case networks defined previously. Note that this is B<not> simply the
 opposite of checking C<is_private_ipv4()> or C<is_private_ipv6()>. The private
 networks are a subset of all the special case networks.
 
+=for Pod::Coverage new
+
 =head1 OBJECT-ORIENTED INTERFACE
 
 This module can also be used as a class. You can call C<<
