@@ -447,6 +447,7 @@ __END__
 
   use Data::Validate::IP qw(is_ipv4 is_ipv6);
 
+  my $suspect = '1.2.3.4';
   if (is_ipv4($suspect)) {
       print "Looks like an IPv4 address";
   }
@@ -454,19 +455,13 @@ __END__
       print "Not an IPv4 address\n";
   }
 
+  $suspect = '::1234';
   if (is_ipv6($suspect)) {
       print "Looks like an IPv6 address";
   }
   else {
       print "Not an IPv6 address\n";
   }
-
-  # or as an object
-  my $v = Data::Validate::IP->new();
-
-  die "not an IPv4 ip" unless ($v->is_ipv4('domain.com'));
-
-  die "not an IPv6 ip" unless ($v->is_ipv6('domain.com'));
 
 =head1 DESCRIPTION
 
