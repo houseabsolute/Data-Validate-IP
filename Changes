@@ -1,4 +1,7 @@
 {{$NEXT}}
+    - A string with a null byte (\0) would be considered valid if the internal
+      implementation used inet_pton() to validate IP addresses. Fixed by Greg
+      Oschwald. GitHub PR #4.
 
 0.23  Sun Mar  09 2014
     - Fixed is_ipv6 to correctly fail for a string like ":abcd" on platforms
