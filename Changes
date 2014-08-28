@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.24  2014-08-28
     - A string with a null byte (\0) would be considered valid if the internal
       implementation used inet_pton() to validate IP addresses. Fixed by Greg
       Oschwald. GitHub PR #4.
