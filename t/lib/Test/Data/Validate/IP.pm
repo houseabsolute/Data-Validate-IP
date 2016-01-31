@@ -114,7 +114,7 @@ my %ipv6_types = (
 );
 
 my %ip_types = map { $_ => [ @{ $ipv4_types{$_} }, @{ $ipv6_types{$_} } ] }
-                qw( linklocal loopback multicast private public );
+    qw( linklocal loopback multicast private public );
 
 sub run_tests {
     _ipv4_basic_tests();
@@ -291,7 +291,7 @@ sub _ip_basic_tests {
     my @valid = qw( 1.1.1.1 2067:fa88::0 ::1.1.1.1 );
 
     for my $ip (@valid) {
-        is(is_ip($ip), $ip, "is_ip($ip) returns $ip");
+        is(is_ip($ip),          $ip, "is_ip($ip) returns $ip");
         is($object->is_ip($ip), $ip, "->is_ip($ip) returns $ip");
 
     }
@@ -305,7 +305,7 @@ sub _ip_basic_tests {
         "::1\0 invalid"
     );
     for my $ip (@invalid) {
-        is(is_ip($ip), undef, "is_ip($ip) returns undef");
+        is(is_ip($ip),          undef, "is_ip($ip) returns undef");
         is($object->is_ip($ip), undef, "->is_ip($ip) returns undef");
     }
 }
@@ -367,7 +367,7 @@ sub _sub_for_type {
     my $sub_name = 'is_' . $type . '_ip';
     $sub_name .= 'v' . $ip_number if defined $ip_number;
 
-    my $sub      = do {
+    my $sub = do {
         no strict 'refs';
         \&{$sub_name};
         }

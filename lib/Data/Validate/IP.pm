@@ -30,12 +30,12 @@ BEGIN {
     if ($HAS_SOCKET) {
         *is_ipv4 = \&_fast_is_ipv4;
         *is_ipv6 = \&_fast_is_ipv6;
-        *is_ip = \&_fast_is_ip
+        *is_ip   = \&_fast_is_ip;
     }
     else {
         *is_ipv4 = \&_slow_is_ipv4;
         *is_ipv6 = \&_slow_is_ipv6;
-        *is_ip = \&_slow_is_ip
+        *is_ip   = \&_slow_is_ip;
     }
 }
 
@@ -73,7 +73,7 @@ sub _fast_is_ipv4 {
     my $value = shift;
 
     return undef
-           unless defined $value
+        unless defined $value
         && $value !~ /\0/
         && defined inet_pton(Socket::AF_INET(), $value);
 
@@ -108,7 +108,7 @@ sub _fast_is_ipv6 {
     my $value = shift;
 
     return undef
-           unless defined $value
+        unless defined $value
         && $value !~ /\0/
         && defined inet_pton(Socket::AF_INET6(), $value);
 
@@ -318,7 +318,7 @@ for my $sub (qw( linklocal loopback multicast private public )) {
 {
     my %ipv4_networks = (
         loopback => { networks => '127.0.0.0/8' },
-        private  => {
+        private => {
             networks => [
                 qw(
                     10.0.0.0/8
@@ -336,9 +336,9 @@ for my $sub (qw( linklocal loopback multicast private public )) {
                     )
             ],
         },
-        anycast    => { networks => '192.88.99.0/24' },
-        multicast  => { networks => '224.0.0.0/4' },
-        linklocal  => { networks => '169.254.0.0/16' },
+        anycast   => { networks => '192.88.99.0/24' },
+        multicast => { networks => '224.0.0.0/4' },
+        linklocal => { networks => '169.254.0.0/16' },
         unroutable => {
             networks => [
                 qw(
