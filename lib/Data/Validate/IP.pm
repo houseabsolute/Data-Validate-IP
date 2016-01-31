@@ -30,16 +30,19 @@ BEGIN {
     if ($HAS_SOCKET) {
         *is_ipv4 = \&_fast_is_ipv4;
         *is_ipv6 = \&_fast_is_ipv6;
+        *is_ip = \&_fast_is_ip
     }
     else {
         *is_ipv4 = \&_slow_is_ipv4;
         *is_ipv6 = \&_slow_is_ipv6;
+        *is_ip = \&_slow_is_ip
     }
 }
 
 our @ISA = qw(Exporter);
 
 our @EXPORT = qw(
+    is_ip
     is_ipv4
     is_ipv6
     is_innet_ipv4
@@ -49,6 +52,20 @@ sub new {
     my $class = shift;
 
     return bless {}, $class;
+}
+
+sub _fast_is_ip {
+    shift if ref $_[0];
+    my $value = shift;
+
+    return undef if !defined $value || $value =~ /\0/;
+
+    my $family = $value =~ /:/ ? Socket::AF_INET6 : Socket::AF_INET;
+
+    return undef unless defined inet_pton($family, $value);
+
+    $value =~ /(.+)/;
+    return $1;
 }
 
 sub _fast_is_ipv4 {
@@ -62,6 +79,13 @@ sub _fast_is_ipv4 {
 
     $value =~ /(.+)/;
     return $1;
+}
+
+sub _slow_is_ip {
+    shift if ref $_[0];
+    my $value = shift;
+
+    return _slow_is_ipv4($value) || _slow_is_ipv6($value);
 }
 
 sub _slow_is_ipv4 {
@@ -185,6 +209,13 @@ sub is_innet_ipv4 {
 
     return $ip if $network->contains($netaddr_ip);
     return;
+}
+
+for my $sub (qw( linklocal loopback multicast private public )) {
+    no strict 'refs';
+    my $sub_name = "is_${sub}_ip";
+    *{$sub_name} = eval "sub { ${sub_name}v4(\@_) || ${sub_name}v6(\@_) }";
+    push @EXPORT, $sub_name;
 }
 
 {
@@ -482,7 +513,7 @@ form evaluates to false in Perl.
 Note that none of these functions actually attempt to test whether the given
 IP address is routable from your device; they are purely semantic checks.
 
-=head2 is_ipv4($ip) and is_ipv6($ip)
+=head2 is_ipv4($ip), is_ipv6($ip), is_ip($ip)
 
 These functions simply check whether the address is a valid IPv4 or IPv6 address.
 
@@ -609,12 +640,32 @@ This subroutine checks whether the address belongs to the IPv6 multicast
 network - C<FF00::/8> - as defined by L<RFC
 4291|http://tools.ietf.org/html/rfc4291>.
 
-=head2 is_public_ipv4($ip) and is_public_ipv6($ip)
+=head2 is_public_ipv4($ip), is_public_ipv6($ip), is_public_ip($ip)
 
 These subroutines check whether the given IP address belongs to any of the
 special case networks defined previously. Note that this is B<not> simply the
 opposite of checking C<is_private_ipv4()> or C<is_private_ipv6()>. The private
 networks are a subset of all the special case networks.
+
+=head2 is_linklocal_ip($ip)
+
+This subroutine checks whether the address belongs to the IPv4 or IPv6
+link-local unicast network.
+
+=head2 is_loopback_ip($ip)
+
+This subroutine checks whether the address is the IPv4 or IPv6 loopback
+address.
+
+=head2 is_multicast_ip($ip)
+
+This subroutine checks whether the address belongs to the IPv4 or IPv6
+multicast network.
+
+=head2 is_private_ip($ip)
+
+This subroutine checks whether the address belongs to the IPv4 or IPv6 private
+network.
 
 =for Pod::Coverage new
 
