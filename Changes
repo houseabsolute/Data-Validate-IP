@@ -3,6 +3,9 @@
     - C<is_ip>, C<is_public_ip>, C<is_private_ip>, C<is_linklocal_ip>,
       C<is_loopback_ip>, and C<is_multicast_ip> were added. These are similar
       to the existing subroutines but are IP address family agnostic.
+    - The subroutines included in this module now always return a scalar when
+      called in list context. Previously they would generally return an empty
+      list when validation failed.
 
 0.24  2014-08-28
     - A string with a null byte (\0) would be considered valid if the internal

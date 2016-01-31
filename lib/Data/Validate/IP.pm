@@ -72,7 +72,7 @@ sub _fast_is_ipv4 {
     shift if ref $_[0];
     my $value = shift;
 
-    return
+    return undef
            unless defined $value
         && $value !~ /\0/
         && defined inet_pton(Socket::AF_INET(), $value);
@@ -92,14 +92,12 @@ sub _slow_is_ipv4 {
     shift if ref $_[0];
     my $value = shift;
 
-    return unless defined($value);
+    return undef unless defined($value);
 
     my (@octets) = $value =~ /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
-    return unless (@octets == 4);
+    return undef unless (@octets == 4);
     foreach (@octets) {
-
-        #return unless ($_ >= 0 && $_ <= 255);
-        return unless ($_ >= 0 && $_ <= 255 && $_ !~ /^0\d{1,2}$/);
+        return undef unless ($_ >= 0 && $_ <= 255 && $_ !~ /^0\d{1,2}$/);
     }
 
     return join('.', @octets);
@@ -109,7 +107,7 @@ sub _fast_is_ipv6 {
     shift if ref $_[0];
     my $value = shift;
 
-    return
+    return undef
            unless defined $value
         && $value !~ /\0/
         && defined inet_pton(Socket::AF_INET6(), $value);
@@ -127,10 +125,10 @@ sub _fast_is_ipv6 {
         shift if ref $_[0];
         my $value = shift;
 
-        return unless defined($value);
+        return undef unless defined($value);
 
         return '::' if $value eq '::';
-        return unless $value =~ /^$ipv6_re$/;
+        return undef unless $value =~ /^$ipv6_re$/;
         $value =~ /(.+)/;
         return $1;
     }
@@ -146,10 +144,10 @@ sub is_innet_ipv4 {
     my $value   = shift;
     my $network = shift;
 
-    return unless defined($value);
+    return undef unless defined($value);
 
     my $ip = is_ipv4($value);
-    return unless defined $ip;
+    return undef unless defined $ip;
 
     # Backwards compatibility hacks to make it accept things that Net::Netmask
     # accepts.
@@ -157,7 +155,7 @@ sub is_innet_ipv4 {
         || $network =~ /^$ip_re$/
         || $network =~ m{^$ip_re/\d\d?$}) {
 
-        $network = NetAddr::IP->new($network) or return;
+        $network = NetAddr::IP->new($network) or return undef;
     }
     elsif (!(blessed $network && $network->isa('NetAddr::IP'))) {
         my $orig = $network;
@@ -165,7 +163,7 @@ sub is_innet_ipv4 {
             my ($net, $netmask) = ($1, $2);
 
             my $bits = _netmask_to_bits($netmask)
-                or return;
+                or return undef;
 
             $network = "$net/$bits";
         }
@@ -173,7 +171,7 @@ sub is_innet_ipv4 {
             my ($net, $hostmask) = ($1, $2);
 
             my $bits = _hostmask_to_bits($hostmask)
-                or return;
+                or return undef;
 
             $network = "$net/$bits";
         }
@@ -202,13 +200,13 @@ sub is_innet_ipv4 {
             );
         }
 
-        $network = NetAddr::IP->new($network) or return;
+        $network = NetAddr::IP->new($network) or return undef;
     }
 
-    my $netaddr_ip = NetAddr::IP->new($ip) or return;
+    my $netaddr_ip = NetAddr::IP->new($ip) or return undef;
 
     return $ip if $network->contains($netaddr_ip);
-    return;
+    return undef;
 }
 
 for my $sub (qw( linklocal loopback multicast private public )) {
@@ -311,7 +309,7 @@ for my $sub (qw( linklocal loopback multicast private public )) {
         my $caller_info
             = "at line $caller[2] of $caller[0] in sub $caller[3]";
 
-        return if $warned_at{$warning}{$caller_info}++;
+        return undef if $warned_at{$warning}{$caller_info}++;
 
         warn "$warning $caller_info\n";
     }
@@ -420,16 +418,16 @@ sub {
     shift if ref $_[0];
     my $value = shift;
 
-    return unless defined $value;
+    return undef unless defined $value;
 
     my $ip = %s($value);
-    return unless defined $ip;
+    return undef unless defined $ip;
 
     my $netaddr_ip = NetAddr::IP->%s($ip);
     for my $net (@nets) {
         return $ip if $net->contains($netaddr_ip);
     }
-    return;
+    return undef;
 }
 EOF
         die $@ if $@;
@@ -445,14 +443,14 @@ sub {
     shift if ref $_[0];
     my $value = shift;
 
-    return unless defined($value);
+    return undef unless defined($value);
 
     my $ip = %s($value);
-    return unless defined $ip;
+    return undef unless defined $ip;
 
     my $netaddr_ip = NetAddr::IP->%s($ip);
     for my $net (@all_nets) {
-        return if $net->contains($netaddr_ip);
+        return undef if $net->contains($netaddr_ip);
     }
 
     return $ip;
