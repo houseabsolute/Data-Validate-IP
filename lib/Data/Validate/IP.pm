@@ -10,12 +10,21 @@ our $VERSION = '0.25';
 use NetAddr::IP 4;
 use Scalar::Util qw( blessed );
 
-require Exporter;
+use base 'Exporter';
+
+## no critic (Modules::ProhibitAutomaticExportation)
+our @EXPORT = qw(
+    is_ip
+    is_ipv4
+    is_ipv6
+    is_innet_ipv4
+);
+## use critic
 
 our $HAS_SOCKET;
 
 BEGIN {
-    local $@;
+    local $@ = undef;
     $HAS_SOCKET = (!$ENV{DVI_NO_SOCKET})
         && eval {
         require Socket;
@@ -41,15 +50,6 @@ BEGIN {
     }
 }
 
-our @ISA = qw(Exporter);
-
-our @EXPORT = qw(
-    is_ip
-    is_ipv4
-    is_ipv6
-    is_innet_ipv4
-);
-
 sub new {
     my $class = shift;
 
@@ -60,12 +60,14 @@ sub _fast_is_ip {
     shift if ref $_[0];
     my $value = shift;
 
-    return undef if !defined $value || $value =~ /\0/;
+    return undef unless defined $value;
+    return undef if $value =~ /\0/;
 
     my $family = $value =~ /:/ ? Socket::AF_INET6 : Socket::AF_INET;
 
     return undef unless defined inet_pton($family, $value);
 
+    ## no critic (RegularExpressions::ProhibitCaptureWithoutTest)
     $value =~ /(.+)/;
     return $1;
 }
@@ -74,11 +76,11 @@ sub _fast_is_ipv4 {
     shift if ref $_[0];
     my $value = shift;
 
-    return undef
-        unless defined $value
-        && $value !~ /\0/
-        && defined inet_pton(Socket::AF_INET(), $value);
+    return undef unless defined $value;
+    return undef if $value =~ /\0/;
+    return undef unless defined inet_pton(Socket::AF_INET(), $value);
 
+    ## no critic (RegularExpressions::ProhibitCaptureWithoutTest)
     $value =~ /(.+)/;
     return $1;
 }
@@ -99,7 +101,8 @@ sub _slow_is_ipv4 {
     my (@octets) = $value =~ /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
     return undef unless (@octets == 4);
     foreach (@octets) {
-        return undef unless ($_ >= 0 && $_ <= 255 && $_ !~ /^0\d{1,2}$/);
+        return undef if $_ < 0 || $_ > 255;
+        return undef if $_ =~ /^0\d{1,2}$/;
     }
 
     return join('.', @octets);
@@ -109,17 +112,18 @@ sub _fast_is_ipv6 {
     shift if ref $_[0];
     my $value = shift;
 
-    return undef
-        unless defined $value
-        && $value !~ /\0/
-        && defined inet_pton(Socket::AF_INET6(), $value);
+    return undef unless defined $value;
+    return undef if $value =~ /\0/;
+    return undef unless defined inet_pton(Socket::AF_INET6(), $value);
 
+    ## no critic (RegularExpressions::ProhibitCaptureWithoutTest)
     $value =~ /(.+)/;
     return $1;
 }
 
 {
     # This comes from Regexp::IPv6
+    ## no critic (RegularExpressions::ProhibitComplexRegexes)
     my $ipv6_re
         = qr/(?-xism::(?::[0-9a-fA-F]{1,4}){0,5}(?:(?::[0-9a-fA-F]{1,4}){1,2}|:(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})))|[0-9a-fA-F]{1,4}:(?:[0-9a-fA-F]{1,4}:(?:[0-9a-fA-F]{1,4}:(?:[0-9a-fA-F]{1,4}:(?:[0-9a-fA-F]{1,4}:(?:[0-9a-fA-F]{1,4}:(?:[0-9a-fA-F]{1,4}:(?:[0-9a-fA-F]{1,4}|:)|(?::(?:[0-9a-fA-F]{1,4})?|(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))))|:(?:(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))|[0-9a-fA-F]{1,4}(?::[0-9a-fA-F]{1,4})?|))|(?::(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))|:[0-9a-fA-F]{1,4}(?::(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))|(?::[0-9a-fA-F]{1,4}){0,2})|:))|(?:(?::[0-9a-fA-F]{1,4}){0,2}(?::(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))|(?::[0-9a-fA-F]{1,4}){1,2})|:))|(?:(?::[0-9a-fA-F]{1,4}){0,3}(?::(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))|(?::[0-9a-fA-F]{1,4}){1,2})|:))|(?:(?::[0-9a-fA-F]{1,4}){0,4}(?::(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))|(?::[0-9a-fA-F]{1,4}){1,2})|:)))/;
 
@@ -131,6 +135,8 @@ sub _fast_is_ipv6 {
 
         return '::' if $value eq '::';
         return undef unless $value =~ /^$ipv6_re$/;
+
+        ## no critic (RegularExpressions::ProhibitCaptureWithoutTest)
         $value =~ /(.+)/;
         return $1;
     }
@@ -141,6 +147,7 @@ sub _fast_is_ipv6 {
 my $ip_re         = qr/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/;
 my $partial_ip_re = qr/\d{1,3}(?:\.\d{1,3}){0,2}/;
 
+## no critic (Subroutines::ProhibitExcessComplexity, ControlStructures::ProhibitCascadingIfElse)
 sub is_innet_ipv4 {
     shift if ref $_[0];
     my $value   = shift;
@@ -210,13 +217,7 @@ sub is_innet_ipv4 {
     return $ip if $network->contains($netaddr_ip);
     return undef;
 }
-
-for my $sub (qw( linklocal loopback multicast private public )) {
-    no strict 'refs';
-    my $sub_name = "is_${sub}_ip";
-    *{$sub_name} = eval "sub { ${sub_name}v4(\@_) || ${sub_name}v6(\@_) }";
-    push @EXPORT, $sub_name;
-}
+## use critic;
 
 {
     my %netmasks = (
@@ -380,6 +381,7 @@ for my $sub (qw( linklocal loopback multicast private public )) {
     _build_is_X_ip_subs(\%ipv6_networks, 6);
 
     # This exists for the benefit of the test code.
+    ## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
     sub _network_is_subnet_of {
         my $network = shift;
         my $other   = shift;
@@ -388,6 +390,7 @@ for my $sub (qw( linklocal loopback multicast private public )) {
     }
 }
 
+## no critic (TestingAndDebugging::ProhibitNoStrict, BuiltinFunctions::ProhibitStringyEval)
 sub _build_is_X_ip_subs {
     my $networks  = shift;
     my $ip_number = shift;
@@ -397,7 +400,7 @@ sub _build_is_X_ip_subs {
 
     my @all_nets;
 
-    local $@;
+    local $@ = undef;
     for my $type (keys %{$networks}) {
         my @nets
             = map { NetAddr::IP->$netaddr_new($_) }
@@ -435,8 +438,10 @@ EOF
         die $@ if $@;
 
         my $sub_name = 'is_' . $type . '_ipv' . $ip_number;
-        no strict 'refs';
-        *{$sub_name} = $sub;
+        {
+            no strict 'refs';
+            *{$sub_name} = $sub;
+        }
         push @EXPORT, $sub_name;
     }
 
@@ -461,10 +466,26 @@ EOF
     die $@ if $@;
 
     my $sub_name = 'is_public_ipv' . $ip_number;
-    no strict 'refs';
-    *{$sub_name} = $sub;
+    {
+        no strict 'refs';
+        *{$sub_name} = $sub;
+    }
     push @EXPORT, $sub_name;
 }
+
+for my $sub (qw( linklocal loopback multicast private public )) {
+    my $sub_name = "is_${sub}_ip";
+
+    {
+        no strict 'refs';
+        *{$sub_name}
+            = eval "sub { ${sub_name}v4(\@_) || ${sub_name}v6(\@_) }";
+        die $@ if $@;
+    }
+
+    push @EXPORT, $sub_name;
+}
+## use critic
 
 1;
 

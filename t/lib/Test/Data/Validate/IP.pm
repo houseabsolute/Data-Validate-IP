@@ -8,7 +8,9 @@ use Data::Validate::IP;
 use Exporter qw( import );
 use Test::More 0.88;
 
+## no critic (Modules::ProhibitAutomaticExportation)
 our @EXPORT = 'run_tests';
+## use critic
 
 my $object = Data::Validate::IP->new();
 
@@ -334,6 +336,7 @@ sub _type_tests {
                 my ($other_sub_name, $other_sub)
                     = _sub_for_type($other, $ip_number);
 
+                ## no critic (Subroutines::ProtectPrivateSubs)
                 if (Data::Validate::IP::_network_is_subnet_of($type, $other))
                 {
                     is(
@@ -368,6 +371,7 @@ sub _sub_for_type {
     $sub_name .= 'v' . $ip_number if defined $ip_number;
 
     my $sub = do {
+        ## no critic (TestingAndDebugging::ProhibitNoStrict)
         no strict 'refs';
         \&{$sub_name};
         }

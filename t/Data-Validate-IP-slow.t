@@ -4,6 +4,7 @@ use warnings;
 use lib 't/lib';
 
 BEGIN {
+    ## no critic (Variables::RequireLocalizedPunctuationVars)
     $ENV{DVI_NO_SOCKET} = 1;
 }
 
