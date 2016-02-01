@@ -71,7 +71,7 @@ sub _test_bad_data {
     my $meth = shift;
     my $bad  = shift;
 
-    my @args   = _args($bad);
+    my @args = _args($bad);
     tainted_ok_deeply(\@args, 'all arguments are tainted');
 
     my $return = Data::Validate::IP->new()->$meth(@args);

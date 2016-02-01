@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+    - C<is_ip>, C<is_public_ip>, C<is_private_ip>, C<is_linklocal_ip>,
+      C<is_loopback_ip>, and C<is_multicast_ip> were added. These are similar
+      to the existing subroutines but are IP address family agnostic.
+    - The subroutines included in this module now always return a scalar when
+      called in list context. Previously they would generally return an empty
+      list when validation failed.
+
 0.24  2014-08-28
     - A string with a null byte (\0) would be considered valid if the internal
       implementation used inet_pton() to validate IP addresses. Fixed by Greg
@@ -82,19 +89,19 @@
     - Fixed parsing of trailing :: (such as 2001::), as that is valid
         This address bug#58991 - Thanks to Alan.Chester@tekelec.com for identifying the problem
     - Also fixed incorrectly treating 2001::1: as a valid IPv6 address when it isn't
-    
+
 0.11  Mon Mar  01 2010
     - Added support for is_innet_ipv4 - simple check to see if IP is in network
         Thanks to "Bartłomiej Syryjczyk" <bartlomiej@syryjczyk.name> for suggesting the function
-      
+
 
 0.10  Thu Jun  04 2009
-    - Added initial support for is_ipv6.  ipv6 is new territory for me, so please send in your 
+    - Added initial support for is_ipv6.  ipv6 is new territory for me, so please send in your
       bug reports to me so that I can make sure I get it done correctly.
 
 0.09  Fri Jan  30 2009
     - Removed AUTOLOAD
-    
+
 0.08  Wed Dec   6 2007
     - Fixed is_ipv4 to treat leading 0's in an ip as invalid, i.e.: 017.1.1.1 is invalid
         Thanks to Joshua D. Abraham <jabra@spl0it.org> for submitting the patch

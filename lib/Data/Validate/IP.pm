@@ -30,16 +30,19 @@ BEGIN {
     if ($HAS_SOCKET) {
         *is_ipv4 = \&_fast_is_ipv4;
         *is_ipv6 = \&_fast_is_ipv6;
+        *is_ip   = \&_fast_is_ip;
     }
     else {
         *is_ipv4 = \&_slow_is_ipv4;
         *is_ipv6 = \&_slow_is_ipv6;
+        *is_ip   = \&_slow_is_ip;
     }
 }
 
 our @ISA = qw(Exporter);
 
 our @EXPORT = qw(
+    is_ip
     is_ipv4
     is_ipv6
     is_innet_ipv4
@@ -51,12 +54,26 @@ sub new {
     return bless {}, $class;
 }
 
+sub _fast_is_ip {
+    shift if ref $_[0];
+    my $value = shift;
+
+    return undef if !defined $value || $value =~ /\0/;
+
+    my $family = $value =~ /:/ ? Socket::AF_INET6 : Socket::AF_INET;
+
+    return undef unless defined inet_pton($family, $value);
+
+    $value =~ /(.+)/;
+    return $1;
+}
+
 sub _fast_is_ipv4 {
     shift if ref $_[0];
     my $value = shift;
 
-    return
-           unless defined $value
+    return undef
+        unless defined $value
         && $value !~ /\0/
         && defined inet_pton(Socket::AF_INET(), $value);
 
@@ -64,18 +81,23 @@ sub _fast_is_ipv4 {
     return $1;
 }
 
+sub _slow_is_ip {
+    shift if ref $_[0];
+    my $value = shift;
+
+    return _slow_is_ipv4($value) || _slow_is_ipv6($value);
+}
+
 sub _slow_is_ipv4 {
     shift if ref $_[0];
     my $value = shift;
 
-    return unless defined($value);
+    return undef unless defined($value);
 
     my (@octets) = $value =~ /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
-    return unless (@octets == 4);
+    return undef unless (@octets == 4);
     foreach (@octets) {
-
-        #return unless ($_ >= 0 && $_ <= 255);
-        return unless ($_ >= 0 && $_ <= 255 && $_ !~ /^0\d{1,2}$/);
+        return undef unless ($_ >= 0 && $_ <= 255 && $_ !~ /^0\d{1,2}$/);
     }
 
     return join('.', @octets);
@@ -85,8 +107,8 @@ sub _fast_is_ipv6 {
     shift if ref $_[0];
     my $value = shift;
 
-    return
-           unless defined $value
+    return undef
+        unless defined $value
         && $value !~ /\0/
         && defined inet_pton(Socket::AF_INET6(), $value);
 
@@ -103,10 +125,10 @@ sub _fast_is_ipv6 {
         shift if ref $_[0];
         my $value = shift;
 
-        return unless defined($value);
+        return undef unless defined($value);
 
         return '::' if $value eq '::';
-        return unless $value =~ /^$ipv6_re$/;
+        return undef unless $value =~ /^$ipv6_re$/;
         $value =~ /(.+)/;
         return $1;
     }
@@ -122,10 +144,10 @@ sub is_innet_ipv4 {
     my $value   = shift;
     my $network = shift;
 
-    return unless defined($value);
+    return undef unless defined($value);
 
     my $ip = is_ipv4($value);
-    return unless defined $ip;
+    return undef unless defined $ip;
 
     # Backwards compatibility hacks to make it accept things that Net::Netmask
     # accepts.
@@ -133,7 +155,7 @@ sub is_innet_ipv4 {
         || $network =~ /^$ip_re$/
         || $network =~ m{^$ip_re/\d\d?$}) {
 
-        $network = NetAddr::IP->new($network) or return;
+        $network = NetAddr::IP->new($network) or return undef;
     }
     elsif (!(blessed $network && $network->isa('NetAddr::IP'))) {
         my $orig = $network;
@@ -141,7 +163,7 @@ sub is_innet_ipv4 {
             my ($net, $netmask) = ($1, $2);
 
             my $bits = _netmask_to_bits($netmask)
-                or return;
+                or return undef;
 
             $network = "$net/$bits";
         }
@@ -149,7 +171,7 @@ sub is_innet_ipv4 {
             my ($net, $hostmask) = ($1, $2);
 
             my $bits = _hostmask_to_bits($hostmask)
-                or return;
+                or return undef;
 
             $network = "$net/$bits";
         }
@@ -178,13 +200,20 @@ sub is_innet_ipv4 {
             );
         }
 
-        $network = NetAddr::IP->new($network) or return;
+        $network = NetAddr::IP->new($network) or return undef;
     }
 
-    my $netaddr_ip = NetAddr::IP->new($ip) or return;
+    my $netaddr_ip = NetAddr::IP->new($ip) or return undef;
 
     return $ip if $network->contains($netaddr_ip);
-    return;
+    return undef;
+}
+
+for my $sub (qw( linklocal loopback multicast private public )) {
+    no strict 'refs';
+    my $sub_name = "is_${sub}_ip";
+    *{$sub_name} = eval "sub { ${sub_name}v4(\@_) || ${sub_name}v6(\@_) }";
+    push @EXPORT, $sub_name;
 }
 
 {
@@ -280,7 +309,7 @@ sub is_innet_ipv4 {
         my $caller_info
             = "at line $caller[2] of $caller[0] in sub $caller[3]";
 
-        return if $warned_at{$warning}{$caller_info}++;
+        return undef if $warned_at{$warning}{$caller_info}++;
 
         warn "$warning $caller_info\n";
     }
@@ -289,7 +318,7 @@ sub is_innet_ipv4 {
 {
     my %ipv4_networks = (
         loopback => { networks => '127.0.0.0/8' },
-        private  => {
+        private => {
             networks => [
                 qw(
                     10.0.0.0/8
@@ -307,9 +336,9 @@ sub is_innet_ipv4 {
                     )
             ],
         },
-        anycast    => { networks => '192.88.99.0/24' },
-        multicast  => { networks => '224.0.0.0/4' },
-        linklocal  => { networks => '169.254.0.0/16' },
+        anycast   => { networks => '192.88.99.0/24' },
+        multicast => { networks => '224.0.0.0/4' },
+        linklocal => { networks => '169.254.0.0/16' },
         unroutable => {
             networks => [
                 qw(
@@ -389,16 +418,16 @@ sub {
     shift if ref $_[0];
     my $value = shift;
 
-    return unless defined $value;
+    return undef unless defined $value;
 
     my $ip = %s($value);
-    return unless defined $ip;
+    return undef unless defined $ip;
 
     my $netaddr_ip = NetAddr::IP->%s($ip);
     for my $net (@nets) {
         return $ip if $net->contains($netaddr_ip);
     }
-    return;
+    return undef;
 }
 EOF
         die $@ if $@;
@@ -414,14 +443,14 @@ sub {
     shift if ref $_[0];
     my $value = shift;
 
-    return unless defined($value);
+    return undef unless defined($value);
 
     my $ip = %s($value);
-    return unless defined $ip;
+    return undef unless defined $ip;
 
     my $netaddr_ip = NetAddr::IP->%s($ip);
     for my $net (@all_nets) {
-        return if $net->contains($netaddr_ip);
+        return undef if $net->contains($netaddr_ip);
     }
 
     return $ip;
@@ -482,7 +511,7 @@ form evaluates to false in Perl.
 Note that none of these functions actually attempt to test whether the given
 IP address is routable from your device; they are purely semantic checks.
 
-=head2 is_ipv4($ip) and is_ipv6($ip)
+=head2 is_ipv4($ip), is_ipv6($ip), is_ip($ip)
 
 These functions simply check whether the address is a valid IPv4 or IPv6 address.
 
@@ -609,12 +638,32 @@ This subroutine checks whether the address belongs to the IPv6 multicast
 network - C<FF00::/8> - as defined by L<RFC
 4291|http://tools.ietf.org/html/rfc4291>.
 
-=head2 is_public_ipv4($ip) and is_public_ipv6($ip)
+=head2 is_public_ipv4($ip), is_public_ipv6($ip), is_public_ip($ip)
 
 These subroutines check whether the given IP address belongs to any of the
 special case networks defined previously. Note that this is B<not> simply the
 opposite of checking C<is_private_ipv4()> or C<is_private_ipv6()>. The private
 networks are a subset of all the special case networks.
+
+=head2 is_linklocal_ip($ip)
+
+This subroutine checks whether the address belongs to the IPv4 or IPv6
+link-local unicast network.
+
+=head2 is_loopback_ip($ip)
+
+This subroutine checks whether the address is the IPv4 or IPv6 loopback
+address.
+
+=head2 is_multicast_ip($ip)
+
+This subroutine checks whether the address belongs to the IPv4 or IPv6
+multicast network.
+
+=head2 is_private_ip($ip)
+
+This subroutine checks whether the address belongs to the IPv4 or IPv6 private
+network.
 
 =for Pod::Coverage new
 
