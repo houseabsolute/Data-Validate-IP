@@ -10,8 +10,10 @@ use Test::Requires {
 
 use Data::Validate::IP;
 
-taint_checking_ok('taint is enabled')
-    or BAIL_OUT('Cannot continue unless taint is enabled');
+unless ( taint_checking_ok('taint is enabled') ) {
+    done_testing();
+    exit 0;
+}
 
 _test_good_data('is_ipv4', '1.2.3.4');
 _test_bad_data('is_ipv4', '1.2.3.999');
