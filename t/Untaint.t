@@ -10,7 +10,7 @@ use Test::Requires {
 
 use Data::Validate::IP;
 
-unless ( taint_checking_ok('taint is enabled') ) {
+unless (taint_checking_ok('taint is enabled')) {
     done_testing();
     exit 0;
 }
