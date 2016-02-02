@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.25  2016-02-01
+
 - C<is_ip>, C<is_public_ip>, C<is_private_ip>, C<is_linklocal_ip>,
   C<is_loopback_ip>, and C<is_multicast_ip> were added. These are similar to
   the existing subroutines but are IP address family agnostic. Implemented by
