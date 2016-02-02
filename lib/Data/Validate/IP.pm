@@ -5,7 +5,7 @@ use warnings;
 
 use 5.008;
 
-our $VERSION = '0.25';
+our $VERSION = '0.26';
 
 use NetAddr::IP 4;
 use Scalar::Util qw( blessed );
