@@ -2,10 +2,10 @@
 
 0.25  2016-02-01
 
-- C<is_ip>, C<is_public_ip>, C<is_private_ip>, C<is_linklocal_ip>,
-  C<is_loopback_ip>, and C<is_multicast_ip> were added. These are similar to
-  the existing subroutines but are IP address family agnostic. Implemented by
-  Greg Oschwald. GitHub PR #5.
+- Added is_ip(), is_public_ip(), is_private_ip(), is_linklocal_ip(),
+  is_loopback_ip(), and is_multicast_ip(). These are similar to the existing
+  subroutines but are IP address family agnostic. Implemented by Greg
+  Oschwald. GitHub PR #5.
 
 - The subroutines included in this module now always return a scalar when
   called in list context. Previously they would generally return an empty list
