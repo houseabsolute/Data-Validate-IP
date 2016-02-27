@@ -321,7 +321,7 @@ sub is_innet_ipv4 {
 {
     my %ipv4_networks = (
         loopback => { networks => '127.0.0.0/8' },
-        private => {
+        private  => {
             networks => [
                 qw(
                     10.0.0.0/8
@@ -339,9 +339,9 @@ sub is_innet_ipv4 {
                     )
             ],
         },
-        anycast   => { networks => '192.88.99.0/24' },
-        multicast => { networks => '224.0.0.0/4' },
-        linklocal => { networks => '169.254.0.0/16' },
+        anycast    => { networks => '192.88.99.0/24' },
+        multicast  => { networks => '224.0.0.0/4' },
+        linklocal  => { networks => '169.254.0.0/16' },
         unroutable => {
             networks => [
                 qw(
