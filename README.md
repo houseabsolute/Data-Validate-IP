@@ -4,7 +4,7 @@ Data::Validate::IP - IPv4 and IPv6 validation methods
 
 # VERSION
 
-version 0.24
+version 0.26
 
 # SYNOPSIS
 
@@ -45,7 +45,7 @@ form evaluates to false in Perl.
 Note that none of these functions actually attempt to test whether the given
 IP address is routable from your device; they are purely semantic checks.
 
-## is\_ipv4($ip) and is\_ipv6($ip)
+## is\_ipv4($ip), is\_ipv6($ip), is\_ip($ip)
 
 These functions simply check whether the address is a valid IPv4 or IPv6 address.
 
@@ -172,12 +172,32 @@ This subroutine checks whether the address belongs to the IPv6 multicast
 network - `FF00::/8` - as defined by [RFC
 4291](http://tools.ietf.org/html/rfc4291).
 
-## is\_public\_ipv4($ip) and is\_public\_ipv6($ip)
+## is\_public\_ipv4($ip), is\_public\_ipv6($ip), is\_public\_ip($ip)
 
 These subroutines check whether the given IP address belongs to any of the
 special case networks defined previously. Note that this is **not** simply the
 opposite of checking `is_private_ipv4()` or `is_private_ipv6()`. The private
 networks are a subset of all the special case networks.
+
+## is\_linklocal\_ip($ip)
+
+This subroutine checks whether the address belongs to the IPv4 or IPv6
+link-local unicast network.
+
+## is\_loopback\_ip($ip)
+
+This subroutine checks whether the address is the IPv4 or IPv6 loopback
+address.
+
+## is\_multicast\_ip($ip)
+
+This subroutine checks whether the address belongs to the IPv4 or IPv6
+multicast network.
+
+## is\_private\_ip($ip)
+
+This subroutine checks whether the address belongs to the IPv4 or IPv6 private
+network.
 
 # OBJECT-ORIENTED INTERFACE
 
@@ -196,13 +216,6 @@ IPv6
 
 **\[RFC 2460\] \[RFC 4193\] \[RFC 4291\] \[RFC 6434\]**
 
-# BUGS
-
-Please report any bugs or feature requests to
-`bug-data-validate-ip@rt.cpan.org`, or through the web interface at
-[http://rt.cpan.org](http://rt.cpan.org). I will be notified, and then you'll automatically be
-notified of progress on your bug as I make changes.
-
 # ACKNOWLEDGEMENTS
 
 Thanks to Richard Sonnen <`sonnen@richardsonnen.com`> for writing the
@@ -211,14 +224,28 @@ Data::Validate module.
 Thanks to Matt Dainty <`matt@bodgit-n-scarper.com`> for adding the
 `is_multicast_ipv4()` and `is_linklocal_ipv4()` code.
 
+# BUGS
+
+Please report any bugs or feature requests to
+`bug-data-validate-ip@rt.cpan.org`, or through the web interface at
+[http://rt.cpan.org](http://rt.cpan.org). I will be notified, and then you'll automatically be
+notified of progress on your bug as I make changes.
+
+Bugs may be submitted through [the RT bug tracker](http://rt.cpan.org/Public/Dist/Display.html?Name=Data-Validate-IP)
+(or [bug-data-validate-ip@rt.cpan.org](mailto:bug-data-validate-ip@rt.cpan.org)).
+
 # AUTHORS
 
-- Neil Neely <neil@neely.cx>
-- Dave Rolsky <autarch@urth.org>
+- Neil Neely &lt;neil@neely.cx>
+- Dave Rolsky &lt;autarch@urth.org>
 
-# COPYRIGHT AND LICENSE
+# CONTRIBUTOR
 
-This software is copyright (c) 2014 by Neil Neely.
+Gregory Oschwald &lt;goschwald@maxmind.com>
+
+# COPYRIGHT AND LICENCE
+
+This software is copyright (c) 2016 by Neil Neely.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
