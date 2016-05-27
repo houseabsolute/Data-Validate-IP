@@ -61,15 +61,7 @@ sub _fast_is_ip {
     my $value = shift;
 
     return undef unless defined $value;
-    return undef if $value =~ /\0/;
-
-    my $family = $value =~ /:/ ? Socket::AF_INET6 : Socket::AF_INET;
-
-    return undef unless defined inet_pton($family, $value);
-
-    ## no critic (RegularExpressions::ProhibitCaptureWithoutTest)
-    $value =~ /(.+)/;
-    return $1;
+    return $value =~ /:/ ? _fast_is_ipv6($value) : _fast_is_ipv4($value);
 }
 
 sub _fast_is_ipv4 {
@@ -114,6 +106,7 @@ sub _fast_is_ipv6 {
 
     return undef unless defined $value;
     return undef if $value =~ /\0/;
+    return undef if $value =~ /0[[:xdigit:]]{4}/;
     return undef unless defined inet_pton(Socket::AF_INET6(), $value);
 
     ## no critic (RegularExpressions::ProhibitCaptureWithoutTest)
