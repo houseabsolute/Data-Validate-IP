@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+- Fixes issue where invalid IPv6 strings such as ::0000000 would be marked as
+  valid by is_ipv6() when using the faster inet_pton() code path.
+
+
 0.25  2016-02-01
 
 - Added is_ip(), is_public_ip(), is_private_ip(), is_linklocal_ip(),
