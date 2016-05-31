@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.26  2016-05-31
+
 - Fixed issue where invalid IPv6 strings such as ::0000000 would be marked as
   valid by is_ipv6() when using the faster inet_pton() code path (GitHub
   #6). Fixed by Greg Oschwald. GitHub PR #7.

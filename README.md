@@ -236,12 +236,12 @@ Bugs may be submitted through [the RT bug tracker](http://rt.cpan.org/Public/Dis
 
 # AUTHORS
 
-- Neil Neely &lt;neil@neely.cx>
-- Dave Rolsky &lt;autarch@urth.org>
+- Neil Neely <neil@neely.cx>
+- Dave Rolsky <autarch@urth.org>
 
 # CONTRIBUTOR
 
-Gregory Oschwald &lt;goschwald@maxmind.com>
+Gregory Oschwald <goschwald@maxmind.com>
 
 # COPYRIGHT AND LICENCE
 
