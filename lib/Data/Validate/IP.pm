@@ -35,18 +35,23 @@ BEGIN {
         # invalid input.
         defined &Socket::inet_pton
             && !defined inet_pton(Socket::AF_INET(),  '016.17.184.1')
-            && !defined inet_pton(Socket::AF_INET6(), '2067::1:');
+            && !defined inet_pton(Socket::AF_INET6(), '2067::1:')
+
+            # Some old versions of Socket are hopelessly broken
+            && length(inet_pton(Socket::AF_INET(), '1.1.1.1')) == 4;
         };
 
     if ($HAS_SOCKET) {
-        *is_ipv4 = \&_fast_is_ipv4;
-        *is_ipv6 = \&_fast_is_ipv6;
-        *is_ip   = \&_fast_is_ip;
+        *is_ipv4             = \&_fast_is_ipv4;
+        *is_ipv6             = \&_fast_is_ipv6;
+        *is_ip               = \&_fast_is_ip;
+        *_build_is_X_ip_subs = \&_build_fast_is_X_ip_subs;
     }
     else {
-        *is_ipv4 = \&_slow_is_ipv4;
-        *is_ipv6 = \&_slow_is_ipv6;
-        *is_ip   = \&_slow_is_ip;
+        *is_ipv4             = \&_slow_is_ipv4;
+        *is_ipv6             = \&_slow_is_ipv6;
+        *is_ip               = \&_slow_is_ip;
+        *_build_is_X_ip_subs = \&_build_slow_is_X_ip_subs;
     }
 }
 
@@ -68,13 +73,19 @@ sub _fast_is_ipv4 {
     shift if ref $_[0];
     my $value = shift;
 
-    return undef unless defined $value;
-    return undef if $value =~ /\0/;
-    return undef unless defined inet_pton(Socket::AF_INET(), $value);
+    return undef unless _fast_is_ipv4_packed($value);
 
     ## no critic (RegularExpressions::ProhibitCaptureWithoutTest)
     $value =~ /(.+)/;
     return $1;
+}
+
+sub _fast_is_ipv4_packed {
+    my $value = shift;
+
+    return undef unless defined $value;
+    return undef if $value =~ /\0/;
+    return inet_pton(Socket::AF_INET(), $value);
 }
 
 sub _slow_is_ip {
@@ -104,14 +115,20 @@ sub _fast_is_ipv6 {
     shift if ref $_[0];
     my $value = shift;
 
-    return undef unless defined $value;
-    return undef if $value =~ /\0/;
-    return undef if $value =~ /0[[:xdigit:]]{4}/;
-    return undef unless defined inet_pton(Socket::AF_INET6(), $value);
+    return undef unless _fast_is_ipv6_packed($value);
 
     ## no critic (RegularExpressions::ProhibitCaptureWithoutTest)
     $value =~ /(.+)/;
     return $1;
+}
+
+sub _fast_is_ipv6_packed {
+    my $value = shift;
+
+    return undef unless defined $value;
+    return undef if $value =~ /\0/;
+    return undef if $value =~ /0[[:xdigit:]]{4}/;
+    return inet_pton(Socket::AF_INET6(), $value);
 }
 
 {
@@ -384,7 +401,7 @@ sub is_innet_ipv4 {
 }
 
 ## no critic (TestingAndDebugging::ProhibitNoStrict, BuiltinFunctions::ProhibitStringyEval)
-sub _build_is_X_ip_subs {
+sub _build_slow_is_X_ip_subs {
     my $networks  = shift;
     my $ip_number = shift;
 
@@ -464,6 +481,111 @@ EOF
         *{$sub_name} = $sub;
     }
     push @EXPORT, $sub_name;
+}
+
+sub _build_fast_is_X_ip_subs {
+    my $networks  = shift;
+    my $ip_number = shift;
+
+    my $is_ip_sub = $ip_number == 4 ? 'is_ipv4'         : 'is_ipv6';
+    my $family    = $ip_number == 4 ? Socket::AF_INET() : Socket::AF_INET6();
+
+    my @all_nets;
+
+    local $@ = undef;
+    for my $type (keys %{$networks}) {
+        my @nets
+            = map { _packed_network_and_netmask($family, $_) }
+            ref $networks->{$type}{networks}
+            ? @{ $networks->{$type}{networks} }
+            : $networks->{$type}{networks};
+
+        # Some IPv6 networks (like TEREDO) are a subset of the special block
+        # so there's no point in checking for them in the is_public_ipv6()
+        # sub.
+        unless ($networks->{$type}{subnet_of}) {
+            push @all_nets, @nets;
+        }
+
+        # We're using code gen rather than just making an anon sub outright so
+        # we don't have to pay the cost of derefencing the $is_ip_sub and the
+        # dynamic dispatch cost for $netaddr_new
+        my $sub = eval sprintf( <<'EOF', $ip_number);
+sub {
+    shift if ref $_[0];
+    my $value = shift;
+
+    my $ip = _fast_is_ipv%u_packed($value);
+
+    return undef unless defined $ip;
+
+    for my $net (@nets) {
+        if (($net->[1] & $ip) eq $net->[0]) {
+            $value =~ /(.+)/;
+            return $1;
+        }
+    }
+    return undef;
+}
+EOF
+        die $@ if $@;
+
+        my $sub_name = 'is_' . $type . '_ipv' . $ip_number;
+        {
+            no strict 'refs';
+            *{$sub_name} = $sub;
+        }
+        push @EXPORT, $sub_name;
+    }
+
+    my $sub = eval sprintf( <<'EOF', $ip_number);
+sub {
+    shift if ref $_[0];
+    my $value = shift;
+
+    my $ip = _fast_is_ipv%u_packed($value);
+
+    return undef unless defined $ip;
+
+    for my $net (@all_nets) {
+        return undef if ($net->[1] & $ip) eq $net->[0];
+    }
+
+    $value =~ /(.+)/;
+    return $1;
+}
+EOF
+    die $@ if $@;
+
+    my $sub_name = 'is_public_ipv' . $ip_number;
+    {
+        no strict 'refs';
+        *{$sub_name} = $sub;
+    }
+    push @EXPORT, $sub_name;
+}
+
+sub _packed_network_and_netmask {
+    my $family  = shift;
+    my $network = shift;
+
+    my ($ip, $bits) = split qr{/}, $network, 2;
+
+    return [
+        inet_pton($family, $ip),
+        _packed_netmask($family, $bits)
+    ];
+}
+
+sub _packed_netmask {
+    my $family = shift;
+    my $bits   = shift;
+
+    my $bit_length = $family == Socket::AF_INET() ? 32 : 128;
+
+    my $bit_string
+        = join(q{}, (1) x $bits, (0) x ($bit_length - $bits));
+    return pack('B' . $bit_length, $bit_string);
 }
 
 for my $sub (qw( linklocal loopback multicast private public )) {
