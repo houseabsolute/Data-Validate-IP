@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.27  2016-11-17
+
 - If your version of Socket.pm provides a sane inet_pton, most of the is_*_ip
   subroutines will use a much faster implementation. is_private_ipv4 and
   is_private_ipv4 are approximately 16x faster. is_private_ipv6 and

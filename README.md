@@ -4,7 +4,7 @@ Data::Validate::IP - IPv4 and IPv6 validation methods
 
 # VERSION
 
-version 0.26
+version 0.27
 
 # SYNOPSIS
 
@@ -231,8 +231,7 @@ Please report any bugs or feature requests to
 [http://rt.cpan.org](http://rt.cpan.org). I will be notified, and then you'll automatically be
 notified of progress on your bug as I make changes.
 
-Bugs may be submitted through [the RT bug tracker](http://rt.cpan.org/Public/Dist/Display.html?Name=Data-Validate-IP)
-(or [bug-data-validate-ip@rt.cpan.org](mailto:bug-data-validate-ip@rt.cpan.org)).
+Bugs may be submitted through [https://github.com/houseabsolute/Data-Validate-IP/issues](https://github.com/houseabsolute/Data-Validate-IP/issues).
 
 # AUTHORS
 
@@ -243,7 +242,7 @@ Bugs may be submitted through [the RT bug tracker](http://rt.cpan.org/Public/Dis
 
 Gregory Oschwald <goschwald@maxmind.com>
 
-# COPYRIGHT AND LICENCE
+# COPYRIGHT AND LICENSE
 
 This software is copyright (c) 2016 by Neil Neely.
 
