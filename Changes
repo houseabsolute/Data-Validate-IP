@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+- If your version of Socket.pm provides a sane inet_pton, most of the
+  is_*_ip subroutines will use a much faster implementation. is_private_ipv4
+  and is_private_ipv4 are approximately 16x faster. is_private_ipv6 and
+  is_public_ipv6 are about 3-4x faster.
+
+
 0.26  2016-05-31
 
 - Fixed issue where invalid IPv6 strings such as ::0000000 would be marked as
@@ -24,6 +30,7 @@
 - A string with a null byte (\0) would be considered valid if the internal
   implementation used inet_pton() to validate IP addresses. Fixed by Greg
   Oschwald. GitHub PR #4.
+
 
 0.23     2014-03-09
 
@@ -199,4 +206,3 @@
 0.01     2005-03-03
 
 - Original version; created by h2xs 1.23 with options -AXn Data::Validate::IP
-
