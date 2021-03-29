@@ -4,7 +4,7 @@ Data::Validate::IP - IPv4 and IPv6 validation methods
 
 # VERSION
 
-version 0.29
+version 0.30
 
 # SYNOPSIS
 
@@ -35,24 +35,26 @@ specific network or whether an address is public or private (reserved).
 
 # USAGE AND SECURITY RECOMMENDATIONS
 
-It's important to understand that if `is_ipv4($ip)` or `is_ipv6($ip)` return
-false, then all other validation functions for that IP address family will
-_also_ return false. So for example, if `is_ipv4($ip)` is false, so are both
-`is_private_ipv4($ip)` _and_ `is_public_ipv4($ip)`.
+It's important to understand that if `is_ipv4($ip)`, `is_ipv6($ip)`, or
+`is_ip($ip)` return false, then all other validation functions for that IP
+address family will _also_ return false. So for example, if `is_ipv4($ip)`
+returns false, then `is_private_ipv4($ip)` _and_ `is_public_ipv4($ip)` will
+both also return false.
 
 This means that simply calling `is_private_ipv4($ip)` by itself is not
 sufficient if you are dealing with untrusted input. You should always check
-`is_ipv4($ip)` as well.
+`is_ipv4($ip)` as well. This applies as well when using IPv6 functions or
+generic functions like `is_private_ip($ip)`.
 
 There are security implications to this around certain oddly formed
 addresses. Notably, an address like "010.0.0.1" is technically valid, but the
 operating system will treat "010" as an octal number. That means that
 "010.0.0.1" is equivalent to "8.0.0.1", _not_ "10.0.0.1".
 
-However, this module's `is_ipv4($ip)` function will return false for
-addresses like "010.0.0.1" which have octal components. And of course that
-means that it also returns false for `is_private_ipv4($ip)` _and_
-`is_public_ipv4($ip)`.
+However, this module's `is_ipv4($ip)` and `is_ip($ip)` functions will return
+false for addresses like "010.0.0.1" which have octal components. And of
+course that means that it also returns false for `is_private_ipv4($ip)`
+_and_ `is_public_ipv4($ip)`.
 
 # FUNCTIONS
 

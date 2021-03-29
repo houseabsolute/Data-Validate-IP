@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.30  2021-03-29
+
 - Added some more details to the security docs to include mentions of the
   is_*_ip() functions too.
 
