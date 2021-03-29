@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+- Fixed a typo in the POD.
+
+
 0.28  2021-03-29
 
 - Added docs about the security implications of using functions like

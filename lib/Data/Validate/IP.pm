@@ -642,7 +642,7 @@ specific network or whether an address is public or private (reserved).
 
 =head1 USAGE AND SECURITY RECOMMENDATIONS
 
-It's important to understand that if C<is_ipv4($ip)> or C,is_ipv6($ip)> return
+It's important to understand that if C<is_ipv4($ip)> or C<is_ipv6($ip)> return
 false, then all other validation functions for that IP address family will
 I<also> return false. So for example, if C<is_ipv4($ip)> is false, so are both
 C<is_private_ipv4($ip)> I<and> C<is_public_ipv4($ip)>.
