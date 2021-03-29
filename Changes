@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+- Added docs about the security implications of using functions like
+  is_private_ip4() without _also_ calling is_ipv4() first. This was inspired
+  by a recent issue with the Node netmask package. See
+  https://sick.codes/universal-netmask-npm-package-used-by-270000-projects-vulnerable-to-octal-input-data-server-side-request-forgery-remote-file-inclusion-local-file-inclusion-and-more-cve-2021-28918/
+  for a write up.
+
+
 0.27  2016-11-17
 
 - If your version of Socket.pm provides a sane inet_pton, most of the is_*_ip

@@ -637,6 +637,27 @@ and untaint their input. This includes both basic validation (C<is_ipv4()> and
 C<is_ipv6()>) and special cases like checking whether an address belongs to a
 specific network or whether an address is public or private (reserved).
 
+=head1 USAGE AND SECURITY RECOMMENDATIONS
+
+It's important to understand that if C<is_ipv4($ip)> or C,is_ipv6($ip)> return
+false, then all other validation functions for that IP address family will
+I<also> return false. So for example, if C<is_ipv4($ip)> is false, so are both
+C<is_private_ipv4($ip)> I<and> C<is_public_ipv4($ip)>.
+
+This means that simply calling C<is_private_ipv4($ip)> by itself is not
+sufficient if you are dealing with untrusted input. You should always check
+C<is_ipv4($ip)> as well.
+
+There are security implications to this around certain oddly formed
+addresses. Notably, an address like "010.0.0.1" is technically valid, but the
+operating system will treat "010" as an octal number. That means that
+"010.0.0.1" is equivalent to "8.0.0.1", I<not> "10.0.0.1".
+
+However, this module's C<is_ipv4($ip)> function will return false for
+addresses like "010.0.0.1" which have octal components. And of course that
+means that it also returns false for C<is_private_ipv4($ip)> I<and>
+C<is_public_ipv4($ip)>.
+
 =head1 FUNCTIONS
 
 All of the functions below are exported by default.
