@@ -4,7 +4,7 @@ Data::Validate::IP - IPv4 and IPv6 validation methods
 
 # VERSION
 
-version 0.28
+version 0.29
 
 # SYNOPSIS
 
@@ -35,7 +35,7 @@ specific network or whether an address is public or private (reserved).
 
 # USAGE AND SECURITY RECOMMENDATIONS
 
-It's important to understand that if `is_ipv4($ip)` or C,is\_ipv6($ip)> return
+It's important to understand that if `is_ipv4($ip)` or `is_ipv6($ip)` return
 false, then all other validation functions for that IP address family will
 _also_ return false. So for example, if `is_ipv4($ip)` is false, so are both
 `is_private_ipv4($ip)` _and_ `is_public_ipv4($ip)`.
