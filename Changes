@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+- Added some more details to the security docs to include mentions of the
+  is_*_ip() functions too.
+
+
 0.29  2021-03-29
 
 - Fixed a typo in the POD.
