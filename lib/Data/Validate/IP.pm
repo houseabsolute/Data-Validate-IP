@@ -200,12 +200,16 @@ sub is_innet_ipv4 {
             # This is a hack to avoid a deprecation warning (Use of implicit
             # split to @_ is deprecated) that shows up on 5.10.1 but not on
             # newer Perls.
+            #
+            ## no critic(Variables::ProhibitUnusedVarsStricter)
             my $octets = scalar(my @tmp = split /\./, $net);
             $network = $net;
             $network .= '.0' x (4 - $octets);
             $network .= "/$bits";
         }
         elsif ($network =~ /^$partial_ip_re$/) {
+
+            ## no critic(Variables::ProhibitUnusedVarsStricter)
             my $octets = scalar(my @tmp = split /\./, $network);
             if ($octets < 4) {
                 $network .= '.0' x (4 - $octets);
@@ -337,7 +341,7 @@ sub is_innet_ipv4 {
                     10.0.0.0/8
                     172.16.0.0/12
                     192.168.0.0/16
-                    )
+                )
             ],
         },
         testnet => {
@@ -346,7 +350,7 @@ sub is_innet_ipv4 {
                     192.0.2.0/24
                     198.51.100.0/24
                     203.0.113.0/24
-                    )
+                )
             ],
         },
         anycast    => { networks => '192.88.99.0/24' },
@@ -360,7 +364,7 @@ sub is_innet_ipv4 {
                     192.0.0.0/29
                     198.18.0.0/15
                     240.0.0.0/4
-                    )
+                )
             ],
         },
     );
@@ -487,8 +491,7 @@ sub _build_fast_is_X_ip_subs {
     my $networks  = shift;
     my $ip_number = shift;
 
-    my $is_ip_sub = $ip_number == 4 ? 'is_ipv4'         : 'is_ipv6';
-    my $family    = $ip_number == 4 ? Socket::AF_INET() : Socket::AF_INET6();
+    my $family = $ip_number == 4 ? Socket::AF_INET() : Socket::AF_INET6();
 
     my @all_nets;
 
