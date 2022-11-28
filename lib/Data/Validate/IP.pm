@@ -791,8 +791,8 @@ network - C<2001:DB8::/32> - as defined by L<RFC
 
 This subroutine checks whether the address belongs to the IPv6 unspecified
 network - C<::0/128> - as defined by L<RFC
-4291|http://tools.ietf.org/html/rfc4291>.. Note that the address in this
-subnet is neither private nor public.
+4291|http://tools.ietf.org/html/rfc4291>.. Note that the address in this subnet
+is neither private nor public.
 
 =head2 is_private_ipv6($ip)
 
