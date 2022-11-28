@@ -1,6 +1,6 @@
+/.tidyall.d
 .\#*
 .build
-/.tidyall.d
 Build
 Data-Validate-IP-*
 Debian_CPANTS.txt
