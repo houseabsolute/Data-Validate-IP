@@ -390,6 +390,7 @@ sub is_innet_ipv4 {
         private       => { networks => 'fc00::/7' },
         linklocal     => { networks => 'fe80::/10' },
         multicast     => { networks => 'ff00::/8' },
+        unspecified   => { networks => '::/128' },
     );
 
     _build_is_X_ip_subs( \%ipv6_networks, 6 );
@@ -785,6 +786,13 @@ continue to exist but will always return false.
 This subroutine checks whether the address belongs to the IPv6 documentation
 network - C<2001:DB8::/32> - as defined by L<RFC
 3849|http://tools.ietf.org/html/rfc3849>.
+
+=head2 is_unspecified_ipv6($ip)
+
+This subroutine checks whether the address belongs to the IPv6 unspecified
+network - C<::0/128> - as defined by L<RFC
+4291|http://tools.ietf.org/html/rfc4291>.. Note that the address in this
+subnet is neither private nor public.
 
 =head2 is_private_ipv6($ip)
 

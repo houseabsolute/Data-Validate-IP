@@ -113,6 +113,12 @@ my %ipv6_types = (
             2001:0db8:ffff:ffff:ffff:ffff:ffff:ffff
         )
     ],
+    unspecified => [
+        qw(
+            ::
+            ::0
+        )
+    ],
 );
 
 my %ip_types = map { $_ => [ @{ $ipv4_types{$_} }, @{ $ipv6_types{$_} } ] }

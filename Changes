@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+- Fixed handling of the ::0/128 subnet. This is a special subnet(/address)
+  that is called the "unspecified address". It is not public or
+  routable. Reported by Dan Sherry. GH #13.
+
+
 0.30  2021-03-29
 
 - Added some more details to the security docs to include mentions of the
