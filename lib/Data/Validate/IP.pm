@@ -431,7 +431,7 @@ sub _build_slow_is_X_ip_subs {
         }
 
         # We're using code gen rather than just making an anon sub outright so
-        # we don't have to pay the cost of derefencing the $is_ip_sub and the
+        # we don't have to pay the cost of dereferencing the $is_ip_sub and the
         # dynamic dispatch cost for $netaddr_new
         my $sub = eval sprintf( <<'EOF', $is_ip_sub, $netaddr_new );
 sub {
@@ -512,7 +512,7 @@ sub _build_fast_is_X_ip_subs {
         }
 
         # We're using code gen rather than just making an anon sub outright so
-        # we don't have to pay the cost of derefencing the $is_ip_sub and the
+        # we don't have to pay the cost of dereferencing the $is_ip_sub and the
         # dynamic dispatch cost for $netaddr_new
         my $sub = eval sprintf( <<'EOF', $ip_number );
 sub {

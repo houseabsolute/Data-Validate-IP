@@ -1,0 +1,6 @@
+# LICENSE is verbatim legal boilerplate. It really does say "MERCHANTIBILITY",
+# and we are not going to edit it.
+[type.license]
+extend-glob = ["LICENSE"]
+[type.license.extend-words]
+MERCHANTIBILITY = "MERCHANTIBILITY"
